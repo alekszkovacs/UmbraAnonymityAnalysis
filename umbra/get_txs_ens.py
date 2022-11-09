@@ -10,7 +10,7 @@ from datetime import timedelta
 _access = Access()
 ens_database = "umbra/data/ens_database.json"
 
-def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, _all: bool) -> None:
+def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, allb: bool) -> None:
 
     contract_txs = og_data["result"]
 
@@ -19,7 +19,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, _all:
             ens_db = json.load(file)
 
         # Whether want to check all the addresses because of the case of latter ens registration
-        if _all:
+        if allb:
             n = 0
         else:
             #it can be the first time
@@ -35,17 +35,17 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, _all:
 
         n = 0
         l = len(contract_txs)
-        _found = _local =0
+        found = local =0
         start = time.time()
 
         for d in contract_txs:
             n += 1
             if not (d["functionName"] == "") and not ("sender_ens" in d):
                 try:
-                    _res = get_ens_name(d, "from", "sender_ens", ens_db)
-                    if _res["r"]:
-                        if _res["s"] == "net": _found += 1
-                        elif _res["s"] == "db": _local += 1
+                    res = get_ens_name(d, "from", "sender_ens", ens_db)
+                    if res["r"]:
+                        if res["s"] == "net": found += 1
+                        elif res["s"] == "db": local += 1
 
                     if input_arg == Argument.UMBRA:
                         #eth
@@ -53,18 +53,18 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, _all:
                             k = d[d["functionName"]]["_receiver"]
                             for tx in d[d["functionName"]][k]:
                                 if "receiver_ens" not in tx:
-                                    _res = get_ens_name(tx, "to", "receiver_ens", ens_db)
-                                    if _res["r"]:
-                                        if _res["s"] == "net": _found += 1
-                                        elif _res["s"] == "db": _local += 1
+                                    res = get_ens_name(tx, "to", "receiver_ens", ens_db)
+                                    if res["r"]:
+                                        if res["s"] == "net": found += 1
+                                        elif res["s"] == "db": local += 1
 
                         #erc20-token
                         elif d["functionName"] == "withdrawTokenOnBehalf(address _stealthAddr, address _acceptor, address _tokenAddr, address _sponsor, uint256 _sponsorFee, uint8 _v, bytes32 _r, bytes32 _s)":
                             if "receiver_ens" not in d[d["functionName"]]:
-                                _res = get_ens_name(d[d["functionName"]], "_acceptor", "receiver_ens", ens_db)
-                                if _res["r"]:
-                                    if _res["s"] == "net": _found += 1
-                                    elif _res["s"] == "db": _local += 1
+                                res = get_ens_name(d[d["functionName"]], "_acceptor", "receiver_ens", ens_db)
+                                if res["r"]:
+                                    if res["s"] == "net": found += 1
+                                    elif res["s"] == "db": local += 1
                         
                 #ens.exceptions
                 except exceptions.InvalidName as err:
@@ -72,7 +72,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, _all:
 
             og_data["last_ens"] = d["hash"]
             now = time.time()
-            print(f"{n}/{l} records checked against ENS, {_found} new found, {_local} gained from local db. Elapsed time: {timedelta(seconds=now-start)}\r", end="")
+            print(f"{n}/{l} records checked against ENS, {found} new found, {local} gained from local db. Elapsed time: {timedelta(seconds=now-start)}\r", end="")
 
         if l == 0:
             print("0 record checked against ENS.")

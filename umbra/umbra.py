@@ -53,6 +53,10 @@ except FileNotFoundError as err:
 downloaded_data = download_txs(contract_addr, lb)
 downloaded_count = len(downloaded_data)
 
+print(f"Successfully downloaded {downloaded_count} new transactions.")
+
+if lb == 0:
+    downloaded_data = downloaded_data[1:]
 
 try:
     """
