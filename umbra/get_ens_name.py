@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 from helper import Access
 
 from web3 import Web3

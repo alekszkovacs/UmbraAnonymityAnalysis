@@ -1,0 +1,33 @@
+import os
+from dotenv import load_dotenv
+from web3 import Web3
+from ens import ENS
+from enum import Enum
+
+
+class Access(object):
+    _instance = None
+
+    def __new__(cls):
+        if not isinstance(cls._instance, cls):
+            cls._instance = super().__new__(cls)
+        return cls._instance
+   
+    def __init__(self):
+        super().__init__()
+        load_dotenv()
+        self.ETHERSCAN_API_KEY = os.environ["ETHERSCAN_API_KEY"]
+        self.WEB3_WEBSOCKET_PROVIDER = os.environ["WEB3_WEBSOCKET_PROVIDER"]
+
+        self.w3 = Web3(Web3.WebsocketProvider(self.WEB3_WEBSOCKET_PROVIDER))
+        self.ns = ENS.fromWeb3(self.w3)
+        
+
+class Argument(Enum):
+    UMBRA = 1
+    REGISTRY = 2
+
+class FunctionName(Enum):
+    S_ETH = "sendEth(address _receiver, uint256 _tollCommitment, bytes32 _pkx, bytes32 _ciphertext)"
+    S_TOKEN = "sendToken(address _receiver, address _tokenAddr, uint256 _amount, bytes32 _pkx, bytes32 _ciphertext)"
+    W_TOKEN = "withdrawTokenOnBehalf(address _stealthAddr, address _acceptor, address _tokenAddr, address _sponsor, uint256 _sponsorFee, uint8 _v, bytes32 _r, bytes32 _s)"
