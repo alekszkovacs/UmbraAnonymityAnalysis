@@ -5,14 +5,33 @@
     With this heuristics we can basically precisely determine the real address behind a stealth address.
     In some cases we can even determine the ENS address, which brings us more closer to the real person!
 
-    As a "sideheuristics" we could simply search for ENS addresses, but it would maybe give out false
-    results since the tx when someone spends his/her money paying someone with an ENS would be also included.
+    As a "sideheuristics" we could simply search for ENS addresses, but it would maybe give out false results since txs
+    like when someone spends his/her money paying someone with an ENS would be also included.
 
-    #1 (jupyter)
-    In this case we have to examine whether the whole amount was sent to the receiver or not.
-    If yes, then we can be pretty sure about that the person behind the stealth address and the receiver address 
-    is the same, since it is highly unlikely that someone has to pay exactly the same amount
-    that she/he has received to someone else who has been also registrated into skr.
+    ### common_statistics --> ###
+    #2
+        In this case we have to examine whether the whole amount was sent from the stealth to the receiver or not, since
+        if not, then there's a higher chance that it was really a tx where someone payed to someone else.
+        If yes, then we can be pretty sure about that the person behind the stealth and the receiver address is the same,
+        since it is highly unlikely that someone has to pay exactly the same amount that she/he has received to someone
+        else who has been also registrated into skr.
+
+        Checking this is also good for eliminating the cases when there are more outgoing txs from a stealth address.
+        In these cases we can't tell who is the real receiver and who holds the stealth address, especially if more of
+        them have communicated with the stealth key registry.
+
+        We only need to check it in case of eth txs, because at tokens you must withdraw all the amount in one tx.
+
+        The results are documented in #2, we act according to that.
+
+    After the results have been made, we have to filter them. We have to look each receiver and the number of txs that
+    were sent to them:
+        - If someone has an ens name which suggests that it's behind a commerce company, we have to manually erase it.
+        - We need to define an "up to value" which until the tx numbers are OK and which after there's a high chance that
+            it belongs to some collecting address or company, maybe a commerce one.
+
+
+    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS.
 """
 import sys
 import json
@@ -36,10 +55,13 @@ class Heuristics1(Heuristics):
         super().__init__(contract_txs, skr_contract_txs)
 
 
-    def main(self) -> None:
-        print("--HEURISTICS 1--")
+    def main(self) -> set:
+        print("\n--HEURISTICS 1--")
         receivers_in_skr = self._get_receivers()
         self._get_statistics(receivers_in_skr)
+
+        stealths = set(map(lambda v: v["stealth"], receivers_in_skr))
+        return stealths
 
 
     def _get_receivers(self) -> list:
@@ -50,11 +72,16 @@ class Heuristics1(Heuristics):
             
             if d["functionName"] == fn.S_ETH.value:
                 stealth = d[d["functionName"]]["_receiver"]
+
                 for tx in d[d["functionName"]][stealth]:
+
                     if tx["to"] in skr_addresses:
-                        a_append = {"sender_tx": d["hash"],
-                                    "receiver_tx": tx["hash"],
-                                    "receiver_address": tx["to"]}
+                        a_append = {
+                            "stealth": stealth,
+                            "sender_tx": d["hash"],
+                            "receiver_tx": tx["hash"],
+                            "receiver_address": tx["to"]  
+                        }
                         if "receiver_ens" in tx:
                             result_list.append({**a_append, **{"ens": tx["receiver_ens"]}})
                         else:
@@ -63,9 +90,12 @@ class Heuristics1(Heuristics):
             elif d["functionName"] == fn.W_TOKEN.value:
                 receiver = d[d["functionName"]]["_acceptor"]
                 if receiver in skr_addresses:
-                    a_append = {"sender_tx": d["hash"],
-                                "receiver_tx": d["hash"],
-                                "receiver_address": receiver}
+                    a_append = {
+                        "stealth": d[d["functionName"]]["_stealthAddr"],
+                        "sender_tx": d["hash"],
+                        "receiver_tx": d["hash"],
+                        "receiver_address": receiver
+                    }
                     if "receiver_ens" in d[d["functionName"]]:
                         result_list.append({**a_append, **{"ens": d[d["functionName"]]["receiver_ens"]}})
                     else:
@@ -80,11 +110,23 @@ class Heuristics1(Heuristics):
     def _get_statistics(self, receivers_in_skr: list) -> None:
         receivers = list(map(lambda v: v["receiver_address"], receivers_in_skr))
         print(f"There are {len(receivers)}/{len(self._contract_txs)} withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.")
-        # We know that every stealth address have been used only once. (umbra_statistics jupyter)
         c_receivers = Counter(receivers)
-        print(f"This means we have assigned {len(receivers)} stealth addresses to {len(dict(c_receivers))} different addresses,")
+        print(f"This means we have assigned {len(receivers)} stealth addresses to {len(dict(c_receivers))} different addresses, ", end="")
 
         ens = list(filter(lambda v: "ens" in v, receivers_in_skr))
         ens = list(map(lambda v: v["ens"], ens))
         ens = Counter(ens)
         print(f"which from {len(dict(ens))} has ens address.")
+
+
+if __name__ == "__main__":
+    with open("umbra/data/umbra_contract_txs.json", "r") as file:
+        data = json.load(file)
+    with open("umbra/data/stealth_key_registry_contract_txs.json", "r") as file:
+        skr_data = json.load(file)
+
+    contract_txs = data["result"]
+    skr_contract_txs = skr_data["result"]
+
+    h1 = Heuristics1(contract_txs, skr_contract_txs)
+    h1.main()

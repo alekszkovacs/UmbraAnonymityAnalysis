@@ -14,7 +14,6 @@ class Heuristics(ABC):
         self._contract_txs = contract_txs
         self._skr_contract_txs = skr_contract_txs
 
-
     @abstractmethod
-    def main(self) -> None:
+    def main(self) -> set:
         pass
