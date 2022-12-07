@@ -1,16 +1,17 @@
+import json
+import sys
+sys.path.append("./")
+
 from helper import Access, Argument
 from download_txs import download_txs
 from decode_txs_input import decode_txs_input
 from get_withdraw_txs import get_withdraw_txs
 from get_txs_ens import get_txs_ens
-
-import json
-import sys
+from get_fees import get_fees
 
 
 get_ens_a = False
 get_w_txs_a = False
-
 
 try:
     match sys.argv[1]:
@@ -49,7 +50,7 @@ except FileNotFoundError as err:
     og_data = {"result": []}
     lb = 0
 
-
+print(f"Getting contract transactions from block {lb}...")
 downloaded_data = download_txs(contract_addr, lb)
 downloaded_count = len(downloaded_data)
 
@@ -63,6 +64,8 @@ try:
     We don't want to concat og_data and downloaded_data yet,
     so there is less data to check against "last_..." in the called methods.
     """
+    get_fees(og_data, downloaded_data)
+
     if input_arg == Argument.UMBRA:
         decode_txs_input(contract_addr, og_data, downloaded_data)
 

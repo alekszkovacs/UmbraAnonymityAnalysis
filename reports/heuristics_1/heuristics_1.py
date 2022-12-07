@@ -34,6 +34,7 @@ sys.path.append("./")
 from helper import FunctionName as fn
 from reports.heuristics import Heuristics
 
+
 class Heuristics1(Heuristics):
     # This code runs in the background (if we don't write anything):
     """

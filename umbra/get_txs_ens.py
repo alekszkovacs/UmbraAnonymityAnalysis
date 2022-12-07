@@ -1,16 +1,17 @@
-from helper import Access, Argument
-from get_ens_name import get_ens_name
-
 from ens import exceptions
 import json
 import time
 from datetime import timedelta
 
+from helper import Access, Argument
+from helper import FunctionName as fn
+from get_ens_name import get_ens_name
+
 
 _access = Access()
 ens_database = "umbra/data/ens_database.json"
 
-def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, allb: bool) -> None:
+def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, download_all: bool) -> None:
 
     contract_txs = og_data["result"]
 
@@ -19,7 +20,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, allb:
             ens_db = json.load(file)
 
         # Whether want to check all the addresses because of the case of latter ens registration
-        if allb:
+        if download_all:
             n = 0
         else:
             #it can be the first time
@@ -49,7 +50,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, allb:
 
                     if input_arg == Argument.UMBRA:
                         #eth
-                        if d["functionName"] == "sendEth(address _receiver, uint256 _tollCommitment, bytes32 _pkx, bytes32 _ciphertext)":
+                        if d["functionName"] == fn.S_ETH.value:
                             k = d[d["functionName"]]["_receiver"]
                             for tx in d[d["functionName"]][k]:
                                 if "receiver_ens" not in tx:
@@ -59,7 +60,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, allb:
                                         elif res["s"] == "db": local += 1
 
                         #erc20-token
-                        elif d["functionName"] == "withdrawTokenOnBehalf(address _stealthAddr, address _acceptor, address _tokenAddr, address _sponsor, uint256 _sponsorFee, uint8 _v, bytes32 _r, bytes32 _s)":
+                        elif d["functionName"] == fn.W_TOKEN.value:
                             if "receiver_ens" not in d[d["functionName"]]:
                                 res = get_ens_name(d[d["functionName"]], "_acceptor", "receiver_ens", ens_db)
                                 if res["r"]:

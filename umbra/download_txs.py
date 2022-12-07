@@ -17,9 +17,7 @@ def call_api(url):
 
 def download_txs(addr: str, lb: int) -> list:
 
-    print(f"Getting contract transactions from block {lb}...")
     response = requests.get(f"https://api.etherscan.io/api?module=account&action=txlist&address={addr}&startblock={lb}&endblock=99999999&page=1&offset=10000&sort=asc&apikey={_access.ETHERSCAN_API_KEY}")
-    print(f"Response code: {response.status_code}")
 
     if int(response.status_code) == 200:
         data_json = response.text

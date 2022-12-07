@@ -19,12 +19,10 @@ def decode_txs_input(contract_addr: str, og_data: dict, downloaded_data: list) -
             if d["hash"] == og_data["last_decoded"]:
                 n = contract_txs.index(d) + 1
                 break
-
-        contract_txs = [*contract_txs[n:], *downloaded_data]
-    
     # If we don't have any data yet
-    else:
-        contract_txs = [*downloaded_data]
+    else: n = 0
+
+    contract_txs = [*contract_txs[n:], *downloaded_data]
 
     contract_abi_endpoint = f"https://api.etherscan.io/api?module=contract&action=getabi&address={contract_addr}&apikey={_access.ETHERSCAN_API_KEY}"
     contract_abi = json.loads(requests.get(contract_abi_endpoint).text)

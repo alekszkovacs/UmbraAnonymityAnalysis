@@ -44,6 +44,7 @@ sys.path.append("./")
 from helper import FunctionName as fn
 from reports.heuristics import Heuristics
 
+
 class Heuristics3(Heuristics):
     
     def __init__(self, contract_txs: list, skr_contract_txs: list):
