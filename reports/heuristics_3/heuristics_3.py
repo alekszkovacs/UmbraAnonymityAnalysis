@@ -9,17 +9,17 @@
     There is only one problem with this: what if the receiver is someone who gives some kind of service in exchange of
     money and people with stealth address are paying for him/her? It could make sense in two cases:
         - When someone sends his/her own money to stealth addresses owned by him-/herself, and from those stealth
-          addresses sends money to the service. In this case the senders should be the same.
-          However, it can also happen that there is the same person behind different sender addresses associated with
-          the same receiver address, but we can't find these addresses.
-          Because of these, we will try to examine and search for the same sender addresses.
+          addresses sends money to the service.
         - When someone gets funds to a stealth address, and wants to pay to someone with it.
+    Anyhow, since it is a heuristics, we don't say that the results are 100% sure, it can contain false positives. For
+    eliminating these, we should make a more deeper analysis, but we won't do it yet.
 
     ### common_statistics --> ###
     #2 
         In this case we have to examine whether the whole amount was sent from the stealth to the receiver or not, since
         if not, then there's a higher chance that it was really a tx where someone payed to someone else.
-        If yes, then we can be pretty sure about that the person behind the stealth and receiver address is the same.
+        If yes, then we can be pretty sure about that the person behind the stealth addresses is the same like the common
+        receiver.
         
         Checking this is also good for eliminating the cases when there are more outgoing txs from a stealth address.
         In these cases we can't tell who is the real receiver and who holds the stealth address.
@@ -28,9 +28,11 @@
 
         The results are documented in #2, we act according to that.
 
-    WITH THIS HEURISTICS WE CAN CONNECT STEALTH ADDRESSES TOGETHER, BUT IT WOULD BE HARD TO SAY THAT BASED ON IT WE CAN
-    DEANONYMIZE SOMEONE. Thare are too many possibilities with which we can explain a case. However there are some patterns
-    which can make us some really good connections and deanonymization closely results.
+    This point #2 in common_statistics gives us high chance to the correctness of this heuristics since if we only deal
+    with stealth addresses where the whole amount was withdrawn in one tx, it is likely that the owners of the stealth
+    addresses outsource their funds the a common address where they can pile it up.
+
+    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS.
 """
 import sys
 import json
@@ -48,13 +50,13 @@ class Heuristics3(Heuristics):
         super().__init__(contract_txs, skr_contract_txs)
 
 
-    def main(self) -> set:
-        print("\n--HEURISTICS 3--")
+    def main(self, deanonymized_stealths: dict = {}) -> dict:
+        self._deanonymized_stealths = deanonymized_stealths
+        print("\n## HEURISTICS 3\n")
         collector_pattern = self._get_results()
-        self._get_statistics(collector_pattern)
+        stealths = self._get_statistics(collector_pattern)
 
-        # stealths = set(map(lambda v: v["stealth"], same_sender_receiver))
-        # return stealths
+        return {"maybe": stealths}
 
         
     def _get_results(self) -> list:
@@ -77,7 +79,6 @@ class Heuristics3(Heuristics):
                         collector_pattern[tx["to"]]["stealths"] = []
 
                     collector_pattern[tx["to"]]["stealths"].append({
-                        "sender": d["from"],
                         "stealth": stealth,
                         "withdrawn_time": datetime.fromtimestamp(int(tx["timeStamp"])).strftime("%Y.%m.%d, %H:%M:%S"),
                         "amount": sent_eth/pow(10, 18)
@@ -95,54 +96,104 @@ class Heuristics3(Heuristics):
                     collector_pattern[receiver]["stealths"] = []
 
                 collector_pattern[receiver]["stealths"].append({
-                        "sender": d["from"],
                         "stealth": func["_stealthAddr"],
                         "withdrawn_time": datetime.fromtimestamp(int(d["timeStamp"])).strftime("%Y.%m.%d, %H:%M:%S"),
                     })
                 collector_pattern[receiver]["collection_count"] += 1
 
 
-        # with open("reports/results/collector_pattern.json", "w") as file:
-        #     json.dump(collector_pattern, file)
+        with open("reports/results/collector_pattern.json", "w") as file:
+            json.dump(collector_pattern, file)
 
         return collector_pattern
 
-    def _get_statistics(self, collector_pattern: list) -> None:
+    def _get_statistics(self, collector_pattern: list) -> set:
 
-        statistics = {}
+        # statistics = {}
 
+        # for receiver, values in collector_pattern.items():
+        #     if values["collection_count"] not in statistics:
+        #         statistics[values["collection_count"]] = []
+
+        #     senders = {}
+        #     for s in values["stealths"]:
+        #         if s["sender"] not in senders:
+        #             senders[s["sender"]] = 0
+
+        #         senders[s["sender"]] += 1
+
+        #     result = Counter(senders.values())
+
+        #     appendict = {"receiver": receiver, **dict(result)}
+        #     if "ens" in values:
+        #         appendict = {"ens": values["ens"], **appendict}
+
+        #     statistics[values["collection_count"]].append(appendict)
+
+        # # We can't do anything with this data
+        # statistics.remove("1")
+
+        # with open("reports/results/collector_pattern_statistics.json", "w") as file:
+        #     json.dump(statistics, file)
+
+        amounts = list(map(lambda d: d["collection_count"], collector_pattern.values()))
+        amounts = pd.Series(amounts)
+        amounts_count = amounts.value_counts()
+        df = pd.DataFrame({"# of addresses": amounts_count.values, "with this many txs": amounts_count.index})
+
+        print(df.to_markdown())
+
+        good_users = []
+        bad_users = []
         for receiver, values in collector_pattern.items():
-            if values["collection_count"] not in statistics:
-                statistics[values["collection_count"]] = []
+            if values["collection_count"] == 1:
+                good_users.append(values["stealths"][0]["stealth"])
+            else:
+                bad_users.append(object)
 
-            senders = {}
-            for s in values["stealths"]:
-                if s["sender"] not in senders:
-                    senders[s["sender"]] = 0
+        print("\nThose, who have 1 *collection_count* in the result (an address is only used once for withdrawal) look like used the umbra correctly. ", end="")
+        print(f"There are `{len(good_users)}` addresses like this.")
 
-                senders[s["sender"]] += 1
+        num_of_bad_good_users = 0
+        for s in self._deanonymized_stealths["confident"]:
+            if s in good_users:
+                num_of_bad_good_users += 1
 
-            result = Counter(senders.values())
+        print(f"From this we have already deanonymized `{num_of_bad_good_users}` stealth addresses, so there are only `{len(good_users) - num_of_bad_good_users}` good users.")
+        print("So for the others we could say that they have been deanonymized, but it wouldn't be necessarily true since the receivers could be exchange or similar addresses. ", end="")
+        print("Because of that we should somehow eliminate these addresses. Sadly there's not really a way to precisely recognize them, so we will do the following:\n")
 
-            appendict = {"receiver": receiver, **dict(result)}
-            if "ens" in values:
-                appendict = {"ens": values["ens"], **appendict}
+        limit = 10
+        count = limit_count = 0
+        print(f"We will check if there are already deanonymized stealth addresses in the pattern where *collection_count* is *> {limit}*.")
+        for receiver, values in collector_pattern.items():
+            if values["collection_count"] > limit:
+                for s in values["stealths"]:
+                    limit_count += 1
+                    if s["stealth"] in self._deanonymized_stealths["confident"]:
+                        count += 1
 
-            statistics[values["collection_count"]].append(appendict)
+        print(f"There are `{count}` stealths like this out of `{limit_count}` stealths.")
+        print(f"This is too much so we can't determine those exchange or commerce company addresses based on the size of the pattern. ", end="")
+        print("We could either say that all the addresses except the ones with *collection_count* = 1 have been deanonymized ", end="")
+        print("or we could say that we will only count as deanonymized the addresses with *collection_count* *<= 5* (just a random number).")
+        print("Neither one is really good or precise, so we will introduce a new unit and say that these addresses are deanonymized but with a lower certainty.")
 
-        # We can't do anything with this data
-        statistics.pop("1")
+        stealths = []
+        for receiver, values in collector_pattern.items():
+            if values["collection_count"] > 1:
+                for s in values["stealths"]:
+                    stealths.append(s["stealth"])
 
-        with open("reports/results/collector_pattern_statistics.json", "w") as file:
-            json.dump(statistics, file)
+        print(f"There are `{len(stealths)}` addresses who has a *collection_count* *> 1*, which from ", end="")
 
-        # amounts = list(map(lambda d: d["collection_count"], collector_pattern.values()))
-        # amounts = pd.Series(amounts)
-        # amounts_count = amounts.value_counts()
-        # df = pd.DataFrame({"Number of addresses...": amounts_count.values, "...with this many txs": amounts_count.index})
+        for s in stealths.copy():
+            if s in self._deanonymized_stealths["confident"]:
+                stealths.remove(s)
 
-        # print(df)
+        print(f"`{len(stealths)}` haven't been already deanonymized. So these are the newly deanonymized with lower certainty.")
 
+        return stealths
 
 if __name__ == "__main__":
     with open("umbra/data/umbra_contract_txs.json", "r") as file:
@@ -153,5 +204,5 @@ if __name__ == "__main__":
     contract_txs = data["result"]
     skr_contract_txs = skr_data["result"]
 
-    h3 = Heuristics3(contract_txs, skr_contract_txs)
+    h3 = Heuristics3(contract_txs, [])
     h3.main()

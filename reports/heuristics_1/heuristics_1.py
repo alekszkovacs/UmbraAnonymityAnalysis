@@ -24,13 +24,6 @@
 
         The results are documented in #2, we act according to that.
 
-    After the results have been made, we have to filter them. We have to look each receiver and the number of txs that
-    were sent to them:
-        - If someone has an ens name which suggests that it's behind a commerce company, we have to manually erase it.
-        - We need to define an "up to value" which until the tx numbers are OK and which after there's a high chance that
-            it belongs to some collecting address or company, maybe a commerce one.
-
-
     WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS.
 """
 import sys
@@ -55,13 +48,13 @@ class Heuristics1(Heuristics):
         super().__init__(contract_txs, skr_contract_txs)
 
 
-    def main(self) -> set:
-        print("\n--HEURISTICS 1--")
+    def main(self, deanonymized_stealths: dict = {}) -> dict:
+        print("\n## HEURISTICS 1\n")
         receivers_in_skr = self._get_receivers()
         self._get_statistics(receivers_in_skr)
 
         stealths = set(map(lambda v: v["stealth"], receivers_in_skr))
-        return stealths
+        return {"confident": stealths}
 
 
     def _get_receivers(self) -> list:
@@ -109,14 +102,14 @@ class Heuristics1(Heuristics):
 
     def _get_statistics(self, receivers_in_skr: list) -> None:
         receivers = list(map(lambda v: v["receiver_address"], receivers_in_skr))
-        print(f"There are {len(receivers)}/{len(self._contract_txs)} withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.")
+        print(f"There are `{len(receivers)}/{len(self._contract_txs)}` withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.")
         c_receivers = Counter(receivers)
-        print(f"This means we have assigned {len(receivers)} stealth addresses to {len(dict(c_receivers))} different addresses, ", end="")
+        print(f"This means we have assigned `{len(receivers)}` stealth addresses to `{len(dict(c_receivers))}` different addresses, ", end="")
 
         ens = list(filter(lambda v: "ens" in v, receivers_in_skr))
         ens = list(map(lambda v: v["ens"], ens))
         ens = Counter(ens)
-        print(f"which from {len(dict(ens))} has ens address.")
+        print(f"which from `{len(dict(ens))}` has ens address.")
 
 
 if __name__ == "__main__":

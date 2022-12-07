@@ -15,5 +15,5 @@ class Heuristics(ABC):
         self._skr_contract_txs = skr_contract_txs
 
     @abstractmethod
-    def main(self) -> set:
+    def main(self, deanonymized_stealths: set = {}) -> set:
         pass

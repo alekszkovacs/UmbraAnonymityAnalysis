@@ -35,13 +35,13 @@ class Heuristics2(Heuristics):
         super().__init__(contract_txs, skr_contract_txs)
 
 
-    def main(self) -> set:
-        print("\n--HEURISTICS 2--")
+    def main(self, deanonymized_stealths: dict = {}) -> dict:
+        print("\n## HEURISTICS 2\n")
         same_sender_receiver = self._get_results()
         self._get_statistics(same_sender_receiver)
 
         stealths = set(map(lambda v: v["stealth"], same_sender_receiver))
-        return stealths
+        return {"confident": stealths}
 
         
     def _get_results(self) -> list:
@@ -84,15 +84,15 @@ class Heuristics2(Heuristics):
 
     def _get_statistics(self, same_sender_receiver: list) -> None:
         same = list(map(lambda v: v["address"], same_sender_receiver))
-        print(f"There are {len(same)}/{len(self._contract_txs)} addresses who have sent funds to themselves.")
+        print(f"There are `{len(same)}/{len(self._contract_txs)}` addresses who have sent funds to themselves.")
         # We know that every stealth address have been used only once. (umbra_statistics jupyter)
         c_same = Counter(same)
-        print(f"This means we have assigned {len(same)} stealth addresses to {len(dict(c_same))} different addresses,")
+        print(f"This means we have assigned `{len(same)}` stealth addresses to `{len(dict(c_same))}` different addresses,")
 
         ens = list(filter(lambda v: "sender_ens" in v, same_sender_receiver))
         ens = list(map(lambda v: v["sender_ens"], ens))
         ens = Counter(ens)
-        print(f"which from {len(dict(ens))} has ens address.")
+        print(f"which from `{len(dict(ens))}` has ens address.")
 
 
 if __name__ == "__main__":

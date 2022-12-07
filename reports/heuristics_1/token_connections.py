@@ -26,7 +26,10 @@ def get_token_connections(contract_txs: list) -> dict:
             receiver_tx = list(filter(lambda st: st[st["functionName"]]["_stealthAddr"] == stealth, (filter(lambda t: t["functionName"] == fn.W_TOKEN.value, contract_txs))))[0]["hash"]
             sender_tx = sender_tx["hash"]
 
-            token_connections[sender_tx]({"receiver_tx": receiver_tx})
+            token_connections[stealth]({
+                "sender_tx": sender_tx,
+                "receiver_tx": receiver_tx
+            })
 
 
     return token_connections
