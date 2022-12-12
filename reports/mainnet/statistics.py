@@ -54,8 +54,8 @@ class MyStatistics(object):
             if mayb_new_size < 0: mayb_new_size = 0
 
             print(f"With this, `{conf_new_size}` new stealth addresses with high and `{mayb_new_size}` with low certainty have been added to the deanonymization set.")
-            print(f"\n**TOTAL with high certainty: `{len(self._deanonymized_stealths['confident'])}/{len(self._contract_txs)}`**  ")
-            print(f"**TOTAL with low certainty: `{len(self._deanonymized_stealths['maybe'])}/{len(self._contract_txs)}`**")
+            print(f"\n**TOTAL with high certainty: `{len(self._deanonymized_stealths['confident'])}/{len(self._all_stealths)}`**  ")
+            print(f"**TOTAL with low certainty: `{len(self._deanonymized_stealths['maybe'])}/{len(self._all_stealths)}`**")
 
     def _open_sources(self) -> None:
         with open("umbra/data/mainnet/umbra_contract_txs.json", "r") as file:
@@ -82,6 +82,14 @@ class MyStatistics(object):
                         self._contract_txs.remove(d)
         ### common_statistics ###
                
+        self._all_stealths = set()
+        for d in self._contract_txs:
+            if d["functionName"] == fn.W_TOKEN.value:
+                continue
+
+            # sendEth() and sendToken() bacause withdrawToken() is redundant
+            stealth = d[d["functionName"]]["_receiver"]
+            self._all_stealths.add(stealth)
 
         self._heuristics = []
         self._heuristics.append(Heuristics1(copy.deepcopy(self._contract_txs), copy.deepcopy(self._skr_contract_txs)))

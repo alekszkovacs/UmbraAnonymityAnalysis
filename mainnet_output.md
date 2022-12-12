@@ -8,8 +8,8 @@ This means we have assigned `4209` stealth addresses to `2700` different address
 This heuristics deanonymized `4209` stealth addresses with high and `0` with low certainty.  
 With this, `4209` new stealth addresses with high and `0` with low certainty have been added to the deanonymization set.
 
-**TOTAL with high certainty: `4209/7614`**  
-**TOTAL with low certainty: `0/7614`**
+**TOTAL with high certainty: `4209/7221`**  
+**TOTAL with low certainty: `0/7221`**
 
 ## HEURISTICS 2
 
@@ -20,8 +20,8 @@ which from `0` has ens address.
 This heuristics deanonymized `204` stealth addresses with high and `0` with low certainty.  
 With this, `15` new stealth addresses with high and `0` with low certainty have been added to the deanonymization set.
 
-**TOTAL with high certainty: `4224/7614`**  
-**TOTAL with low certainty: `0/7614`**
+**TOTAL with high certainty: `4224/7221`**  
+**TOTAL with low certainty: `0/7221`**
 
 ## HEURISTICS 3
 
@@ -60,8 +60,8 @@ There are `3356` addresses who has a *collection_count* *> 1*, which from `964` 
 This heuristics deanonymized `0` stealth addresses with high and `964` with low certainty.  
 With this, `0` new stealth addresses with high and `964` with low certainty have been added to the deanonymization set.
 
-**TOTAL with high certainty: `4224/7614`**  
-**TOTAL with low certainty: `964/7614`**
+**TOTAL with high certainty: `4224/7221`**  
+**TOTAL with low certainty: `964/7221`**
 
 ## HEURISTICS 4
 
@@ -70,5 +70,5 @@ Fees where there's both sender and withdrawal txs: [4000000000, 3000000000, 2000
 This heuristics deanonymized `0` stealth addresses with high and `0` with low certainty.  
 With this, `0` new stealth addresses with high and `0` with low certainty have been added to the deanonymization set.
 
-**TOTAL with high certainty: `4224/7614`**  
-**TOTAL with low certainty: `964/7614`**
+**TOTAL with high certainty: `4224/7221`**  
+**TOTAL with low certainty: `964/7221`**
