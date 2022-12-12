@@ -1,4 +1,4 @@
-from helper import Access
+from helper import Access, Network
 
 import json
 import requests
@@ -6,7 +6,7 @@ from ratelimit import limits, sleep_and_retry
 
 _access = Access()
 
-CALLS = 4
+CALLS = 3
 RATE_LIMIT = 1  # time period in seconds
 
 @sleep_and_retry
@@ -16,18 +16,48 @@ def call_api(url):
 
 
 def download_txs(addr: str, lb: int) -> list:
+    downloaded_data = []
+    current_data = []
+    loop = True
 
-    response = requests.get(f"https://api.etherscan.io/api?module=account&action=txlist&address={addr}&startblock={lb}&endblock=99999999&page=1&offset=10000&sort=asc&apikey={_access.ETHERSCAN_API_KEY}")
+    while loop:
+   
+        response = call_api(
+            f"https://{_access.API_ADDR}/api?module=account&action=txlist&address={addr}&startblock={lb}&endblock=9999999999999&page=1&offset=10000&sort=asc&apikey={_access.API_KEY}"
+        )
+        if int(response.status_code) == 200:
+            data_json = response.text
+            current_data = json.loads(data_json)["result"]
+        else: raise Exception(f"Some error occured. Unable to download txs. Error {response.status_code}")
 
-    if int(response.status_code) == 200:
-        data_json = response.text
-        data = json.loads(data_json)["result"]
+        if downloaded_data != []:
+            for d in current_data.copy():
+                if d["hash"] != downloaded_data[-1]["hash"]:
+                    current_data.remove(d)
+                else:
+                    current_data.remove(d)
+                    break
 
-        for d in data.copy():
-            if int(d["txreceipt_status"]) == 0 or int(d["isError"] == 1):
-                data.remove(d)
+        if current_data != []:
+            downloaded_data = [*downloaded_data, *current_data]
+            lb = current_data[-1]["blockNumber"]
 
-    else:
-        data = []
+            # Check wether there are more txs
+            response = call_api(
+                f"https://{_access.API_ADDR}/api?module=account&action=txlist&address={addr}&startblock={str(int(lb)+1)}&endblock=9999999999999&page=1&offset=10000&sort=asc&apikey={_access.API_KEY}"
+            )
+            if int(response.status_code) == 200:
+                data_json = response.text
+                temp_data = json.loads(data_json)["result"]
+            else: raise Exception(f"Some error occured. Unable to download txs. Error {response.status_code}")
+
+            # If there aren't more txs
+            if temp_data == []: loop = False
+        
+        else: loop = False
     
-    return data
+    for d in downloaded_data.copy():
+        if int(d["txreceipt_status"]) == 0 or int(d["isError"] == 1):
+            downloaded_data.remove(d)
+
+    return downloaded_data

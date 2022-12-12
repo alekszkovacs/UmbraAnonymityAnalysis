@@ -33,11 +33,8 @@ def get_fees(og_data: dict, downloaded_data: list) -> None:
 
     contract_txs = [*contract_txs[n:], *downloaded_data]
 
-    print("Getting tx fees...")
-
     n = 0
     l = len(contract_txs)
-    start = time.time()
     for d in contract_txs:
         n+=1
 
@@ -46,7 +43,9 @@ def get_fees(og_data: dict, downloaded_data: list) -> None:
         og_data["last_fee"] = d["hash"]
 
         now = time.time()
-        print(f"{n}/{l} records checked for priority fees. Elapsed time: {timedelta(seconds=now-start)}\r", end="")
+        print(f"{n}/{l} records checked for priority fees. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
 
-
-    
+    if l == 0:
+        print("0 record checked against ENS.")
+    else:
+        print()

@@ -32,8 +32,6 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
     n = 0
     l = len(contract_txs)
     found = 0
-    start = time.time()
-
     for d in contract_txs:
         n += 1
 
@@ -47,7 +45,7 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
                 if len(d[d["functionName"]][address]) == w3.eth.get_transaction_count(Web3.toChecksumAddress(address)):
                     og_data["last_withdraw"] = d["hash"]
                     now = time.time()
-                    print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-start)}\r", end="")
+                    print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
                     continue
 
 
@@ -59,7 +57,7 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
 
         og_data["last_withdraw"] = d["hash"]
         now = time.time()
-        print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-start)}\r", end="")
+        print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
 
     if l == 0:
         print("0 record checked for withdraw.")

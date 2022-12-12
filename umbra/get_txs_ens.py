@@ -37,8 +37,6 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, downl
         n = 0
         l = len(contract_txs)
         found = local =0
-        start = time.time()
-
         for d in contract_txs:
             n += 1
             if not (d["functionName"] == "") and not ("sender_ens" in d):
@@ -73,7 +71,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, downl
 
             og_data["last_ens"] = d["hash"]
             now = time.time()
-            print(f"{n}/{l} records checked against ENS, {found} new found, {local} gained from local db. Elapsed time: {timedelta(seconds=now-start)}\r", end="")
+            print(f"{n}/{l} records checked against ENS, {found} new found, {local} gained from local db. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
 
         if l == 0:
             print("0 record checked against ENS.")
