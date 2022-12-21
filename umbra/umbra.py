@@ -1,6 +1,10 @@
 import json
 import sys
-from wakepy import set_keepawake, unset_keepawake
+try:
+    from wakepy import set_keepawake, unset_keepawake
+except NotImplementedError as err:
+    print(err)
+    print("\nYour system does not support using wakepy package. Because of that the program cannot prevent your system from sleeping or getting hibernated, so you have to make extra effort to keep your PC awake during long downloading processes. Please read the error and try to make wakepy work or be careful if you want to start a long downloading process while you are away from your PC.\n")   
 import os
 from asyncio import exceptions as ae
 from requests import exceptions as re
