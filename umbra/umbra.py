@@ -6,7 +6,7 @@ from asyncio import exceptions as ae
 from requests import exceptions as re
 sys.path.append("./")
 
-from helper import Access, Argument, Network
+from helper import Access, Contract, Network
 from download_txs import download_txs
 from decode_txs_input import decode_txs_input
 from get_withdraw_txs import get_withdraw_txs
@@ -23,25 +23,25 @@ when_from_0_delete_this = 0 # When we download all the transactions from block 0
 try:
     match sys.argv[1]:
         case "mainnet":
-            _access.init_network(Network.MAINNET)
-            when_from_0_delete_this = 1
+            network = Network.MAINNET
         case "polygon":
-            _access.init_network(Network.POLYGON)
-            when_from_0_delete_this = 2
+            network = Network.POLYGON
         case default:
             sys.exit("Incorrect 1. argument! (mainnet, polygon)")
+
+    _access.init_network(network)
 
     match sys.argv[2]:
         case "umbra":
             fname = f"umbra/data/{_access.network.value}/umbra_contract_txs.json"
             fbackup = f"umbra/data/{_access.network.value}/umbra_contract_txs_BACKUP.json"
             contract_addr = "0xfb2dc580eed955b528407b4d36ffafe3da685401"
-            input_arg = Argument.UMBRA
+            contract = Contract.UMBRA
         case "registry":
             fname = f"umbra/data/{_access.network.value}/stealth_key_registry_contract_txs.json"
             fbackup = f"umbra/data/{_access.network.value}/stealth_key_registry_contract_txs_BACKUP.json"
             contract_addr = "0x31fe56609C65Cd0C510E7125f051D440424D38f3"
-            input_arg = Argument.REGISTRY
+            contract = Contract.REGISTRY
         case default:
             sys.exit("Incorrect 2. argument! (umbra, registry)")
 
@@ -85,7 +85,8 @@ try:
     print(f"Successfully downloaded {downloaded_count} new transactions.")
 
     if lb == 0:
-        downloaded_data = downloaded_data[when_from_0_delete_this:]
+        _delete = 1 if network == Network.MAINNET else 2
+        downloaded_data = downloaded_data[_delete:]
 
     # If the API endpoint timeouts...
     while True:
@@ -96,12 +97,13 @@ try:
             """
             get_fees(og_data, downloaded_data)
 
-            if input_arg == Argument.UMBRA:
+            if contract == Contract.UMBRA:
                 decode_txs_input(contract_addr, og_data, downloaded_data)
 
                 get_withdraw_txs(og_data, downloaded_data, get_w_txs_a)
 
-            #get_txs_ens(og_data, downloaded_data, input_arg, get_ens_a)
+            if network == Network.MAINNET:
+                get_txs_ens(og_data, downloaded_data, contract, get_ens_a)
 
             break
 

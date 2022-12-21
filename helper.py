@@ -10,7 +10,7 @@ class Network(Enum):
     MAINNET = "mainnet"
     POLYGON = "polygon"
 
-class Argument(Enum):
+class Contract(Enum):
     UMBRA = 1
     REGISTRY = 2
 

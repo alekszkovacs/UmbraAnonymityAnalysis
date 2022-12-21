@@ -3,7 +3,7 @@ import json
 import time
 from datetime import timedelta
 
-from helper import Access, Argument
+from helper import Access, Contract
 from helper import FunctionName as fn
 from get_ens_name import get_ens_name
 
@@ -11,7 +11,7 @@ from get_ens_name import get_ens_name
 _access = Access()
 ens_database = "umbra/data/ens_database.json"
 
-def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, download_all: bool) -> None:
+def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Contract, download_all: bool) -> None:
 
     contract_txs = og_data["result"]
 
@@ -46,7 +46,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Argument, downl
                         if res["s"] == "net": found += 1
                         elif res["s"] == "db": local += 1
 
-                    if input_arg == Argument.UMBRA:
+                    if input_arg == Contract.UMBRA:
                         #eth
                         if d["functionName"] == fn.S_ETH.value:
                             k = d[d["functionName"]]["_receiver"]
