@@ -1,6 +1,13 @@
+import traceback
 import json
 import sys
-from wakepy import set_keepawake, unset_keepawake
+try:
+    from wakepy import set_keepawake, unset_keepawake
+    use_wakepy = True
+except NotImplementedError as err:
+    traceback.print_exc()
+    print("\nYour system does not support using wakepy package. Because of that the program cannot prevent your system from sleeping or getting hibernated, so you have to make extra effort to keep your PC awake during long downloading processes. Please read the error and try to make wakepy work or be careful if you want to start a long downloading process while you are away from your PC.\nContinue running...\n")
+    use_wakepy = False
 import os
 from asyncio import exceptions as ae
 from requests import exceptions as re
@@ -62,8 +69,8 @@ except IndexError as err:
 
 try:
     # Prevent the OS from sleeping while we run
-    set_keepawake(keep_screen_awake=False)
-
+    if use_wakepy: set_keepawake(keep_screen_awake=False)
+    print(use_wakepy)
 
     try:
         with open(fname, "r") as file:
@@ -128,4 +135,4 @@ finally:
     print(f"\n{trx_count} txs have been written into the file.")
 
     # Renable OS sleeping
-    unset_keepawake()
+    if use_wakepy: unset_keepawake()
