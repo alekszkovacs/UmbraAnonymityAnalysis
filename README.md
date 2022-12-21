@@ -16,14 +16,8 @@ sudo apt-get install python3-venv python3-pip
 
 git clone https://github.com/alekszkovacs/UmbraAnonymityAnalysis.git
 cd UmbraAnonymityAnalysis/
-git lfs pull
+pip install -r requirements.txt
 cp sample.env .env
 ```
 
-Now open the `.env` file and give the necessary data respectively.  
-
-pip install wakepy
-pip install requests
-pip install python-dotenv
-pip install web3
-pip install ratelimit
+Now open the `.env` file and give the necessary data respectively.
