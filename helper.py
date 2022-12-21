@@ -37,15 +37,25 @@ class Access(object):
         self.network = network
         if network == Network.MAINNET:
             self.API_ADDR = os.environ["MAINNET_API_ADDR"]
-            self.API_KEY = os.environ["ETHERSCAN_API_KEY"]
-            self.WEB3_PROVIDER = os.environ["MAINNET_WEB3_WEBSOCKET_PROVIDER"]
+            self.API_KEY = os.environ["MAINNET_API_KEY"]
+
+            m_http = os.environ["MAINNET_WEB3_HTTP_PROVIDER"].strip()
+            m_websocket = os.environ["MAINNET_WEB3_WEBSOCKET_PROVIDER"].strip()
+            if m_http != "": self.WEB3_PROVIDER = m_http
+            if m_websocket != "": self.WEB3_PROVIDER = m_websocket
+
             self.w3 = Web3(Web3.WebsocketProvider(self.WEB3_PROVIDER))
         elif network == Network.POLYGON:
             self.API_ADDR = os.environ["POLYGON_API_ADDR"]
-            self.API_KEY = os.environ["POLYGONSCAN_API_KEY"]
+            self.API_KEY = os.environ["POLYGON_API_KEY"]
+
             # Since the found (at least that I've found) websocket provider had poor performance, and infura (which has
             # good performance) only has http for polygon, I will use http...
-            self.WEB3_PROVIDER = os.environ["POLYGON_WEB3_HTTP_PROVIDER"]
+            m_http = os.environ["POLYGON_WEB3_HTTP_PROVIDER"].strip()
+            m_websocket = os.environ["POLYGON_WEB3_WEBSOCKET_PROVIDER"].strip()
+            if m_http != "": self.WEB3_PROVIDER = m_http
+            if m_websocket != "": self.WEB3_PROVIDER = m_websocket
+            
             self.w3 = Web3(Web3.HTTPProvider(self.WEB3_PROVIDER))
 
         self.ns = ENS.fromWeb3(self.w3)
