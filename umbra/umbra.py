@@ -70,7 +70,7 @@ except IndexError as err:
 try:
     # Prevent the OS from sleeping while we run
     if use_wakepy: set_keepawake(keep_screen_awake=False)
-    print(use_wakepy)
+
 
     try:
         with open(fname, "r") as file:
