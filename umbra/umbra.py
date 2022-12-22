@@ -12,6 +12,7 @@ import os
 from asyncio import exceptions as ae
 from requests import exceptions as re
 sys.path.append("./")
+sys.dont_write_bytecode = True # Prevent the creation of __pycache__ directories
 
 from helper import Access, Contract, Network
 from download_txs import download_txs
@@ -24,8 +25,6 @@ from get_fees import get_fees
 _access = Access()
 get_ens_a = False
 get_w_txs_a = False
-when_from_0_delete_this = 0 # When we download all the transactions from block 0, we have to delete 1 in case of mainnet
-                            # and we have to delete 2 in case of polygon from the head of the list.
 
 try:
     match sys.argv[1]:
@@ -92,6 +91,8 @@ try:
     print(f"Successfully downloaded {downloaded_count} new transactions.")
 
     if lb == 0:
+        # When we download all the transactions from block 0, we have to delete 1 in case of mainnet
+        # and we have to delete 2 in case of polygon from the head of the list.
         _delete = 1 if network == Network.MAINNET else 2
         downloaded_data = downloaded_data[_delete:]
 

@@ -1,26 +1,40 @@
 import sys
 import json
 import copy
+import importlib
 sys.path.append("./")
-sys.stdout
+sys.dont_write_bytecode = True # Prevent the creation of __pycache__ directories
+
+try:
+    match sys.argv[1]:
+        case "mainnet":
+            network = "mainnet"
+        case "polygon":
+            network = "polygon"
+        case default:
+            sys.exit("Incorrect 1. argument! (mainnet, polygon)")
+
+except IndexError as err:
+    sys.exit("Please give 1 argument! (mainnet, polygon)")
 
 from helper import FunctionName as fn
-from heuristics import Heuristics
-from heuristics_1.heuristics_1 import Heuristics1
-from heuristics_2.heuristics_2 import Heuristics2
-from heuristics_3.heuristics_3 import Heuristics3
-from heuristics_4.heuristics_4 import Heuristics4
+from reports.heuristics import Heuristics
+Heuristics1 = importlib.import_module(f"reports.{network}.heuristics_1.heuristics_1").Heuristics1
+# from reports.heuristics_2.heuristics_2 import Heuristics2
+# from reports.heuristics_3.heuristics_3 import Heuristics3
+# from reports.heuristics_4.heuristics_4 import Heuristics4
+
 
 class MyStatistics(object):
     _instance = None
 
 
-    def __new__(cls):
+    def __new__(cls, *args):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
    
-    def __init__(self):
+    def __init__(self, network: str):
         super().__init__()
 
         self._deanonymized_stealths = {
@@ -28,8 +42,11 @@ class MyStatistics(object):
             "maybe": set()
         }
 
+        Heuristics.network = network
+
         self._open_sources()
         self._prepare_heuristics()
+
 
     def run_heuristics(self) -> None:
         for h in self._heuristics:                  
@@ -57,6 +74,7 @@ class MyStatistics(object):
             print(f"\n**TOTAL with high certainty: `{len(self._deanonymized_stealths['confident'])}/{len(self._all_stealths)}`**  ")
             print(f"**TOTAL with low certainty: `{len(self._deanonymized_stealths['maybe'])}/{len(self._all_stealths)}`**")
 
+
     def _open_sources(self) -> None:
         with open("umbra/data/mainnet/umbra_contract_txs.json", "r") as file:
             data = json.load(file)
@@ -71,13 +89,14 @@ class MyStatistics(object):
         ### common_statistics --> ###
         #2
         for d in self._contract_txs.copy():
-            
-            if d["functionName"] == fn.S_ETH.value:
-                stealth = d[d["functionName"]]["_receiver"]
-                sent_eth = int(d["value"])
+                if d["functionName"] == fn.S_ETH.value:
+                    stealth = d[d["functionName"]]["_receiver"]
+                    sent_eth = int(d["value"])
 
-                for tx in d[d["functionName"]][stealth]:
-                    withdrawn_eth = int(tx["value"]) + (int(tx["gasUsed"]) * int(tx["gasPrice"]))
+                    for tx in d[d["functionName"]][stealth]:
+                        # If there are more tx, then withdrawn_eth will not be equal to sent eth
+                        withdrawn_eth = int(tx["value"]) + (int(tx["gasUsed"]) * int(tx["gasPrice"]))
+
                     if sent_eth != withdrawn_eth:
                         self._contract_txs.remove(d)
         ### common_statistics ###
@@ -93,14 +112,18 @@ class MyStatistics(object):
 
         self._heuristics = []
         self._heuristics.append(Heuristics1(copy.deepcopy(self._contract_txs), copy.deepcopy(self._skr_contract_txs)))
-        self._heuristics.append(Heuristics2(copy.deepcopy(self._contract_txs), []))
-        self._heuristics.append(Heuristics3(copy.deepcopy(self._contract_txs), []))
-        self._heuristics.append(Heuristics4(copy.deepcopy(self._contract_txs), []))
+        # self._heuristics.append(Heuristics2(copy.deepcopy(self._contract_txs), []))
+        # self._heuristics.append(Heuristics3(copy.deepcopy(self._contract_txs), []))
+        # self._heuristics.append(Heuristics4(copy.deepcopy(self._contract_txs), []))
 
-with open("mainnet_output.md", "w") as file:
-    sys.stdout = file
 
-    print("# Umbra Deanonymization")
+# with open("mainnet_output.md", "w") as file:
+#     #sys.stdout = file
 
-    stats = MyStatistics()
-    stats.run_heuristics()
+#     print("# Umbra Deanonymization")
+
+#     stats = MyStatistics(network)
+#     stats.run_heuristics()
+
+stats = MyStatistics(network)
+stats.run_heuristics()

@@ -2,7 +2,7 @@ import sys
 import json
 import copy
 sys.path.append("./")
-sys.stdout
+sys.dont_write_bytecode = True # Prevent the creation of __pycache__ directories
 
 from helper import FunctionName as fn
 from heuristics import Heuristics
@@ -71,7 +71,6 @@ class MyStatistics(object):
         ### common_statistics --> ###
         #2
         for d in self._contract_txs.copy():
-            
             if d["functionName"] == fn.S_ETH.value:
                 stealth = d[d["functionName"]]["_receiver"]
                 sent_eth = int(d["value"])
