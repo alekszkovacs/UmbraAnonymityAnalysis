@@ -1,10 +1,9 @@
-from helper import Access, Network
+from helper import access, Network
 
 import json
 import requests
 from ratelimit import limits, sleep_and_retry
 
-_access = Access()
 
 CALLS = 3
 RATE_LIMIT = 1  # time period in seconds
@@ -23,7 +22,7 @@ def download_txs(addr: str, lb: int) -> list:
     while loop:
    
         response = call_api(
-            f"https://{_access.API_ADDR}/api?module=account&action=txlist&address={addr}&startblock={lb}&endblock=9999999999999&page=1&offset=10000&sort=asc&apikey={_access.API_KEY}"
+            f"https://{access.API_ADDR}/api?module=account&action=txlist&address={addr}&startblock={lb}&endblock=9999999999999&page=1&offset=10000&sort=asc&apikey={access.API_KEY}"
         )
         if int(response.status_code) == 200:
             data_json = response.text
@@ -44,7 +43,7 @@ def download_txs(addr: str, lb: int) -> list:
 
             # Check wether there are more txs
             response = call_api(
-                f"https://{_access.API_ADDR}/api?module=account&action=txlist&address={addr}&startblock={str(int(lb)+1)}&endblock=9999999999999&page=1&offset=10000&sort=asc&apikey={_access.API_KEY}"
+                f"https://{access.API_ADDR}/api?module=account&action=txlist&address={addr}&startblock={str(int(lb)+1)}&endblock=9999999999999&page=1&offset=10000&sort=asc&apikey={access.API_KEY}"
             )
             if int(response.status_code) == 200:
                 data_json = response.text

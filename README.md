@@ -11,6 +11,7 @@ sudo apt-get update
 sudo apt-get install git-all
 sudo apt-get install git-lfs
 git lfs install
+# install python >= 3.10 version
 sudo apt-get install python3
 sudo apt-get install python3-venv python3-pip
 

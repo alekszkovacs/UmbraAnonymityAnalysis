@@ -3,13 +3,11 @@ from datetime import timedelta
 import requests
 import json
 
-from helper import Access
+from helper import access
 from helper import FunctionName as fn
 from download_txs import download_txs
 from get_fees import get_txs_fees
 
-
-_access = Access()
 
 def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -> None:
 
@@ -45,7 +43,7 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
                 if len(d[d["functionName"]][address]) == w3.eth.get_transaction_count(Web3.toChecksumAddress(address)):
                     og_data["last_withdraw"] = d["hash"]
                     now = time.time()
-                    print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
+                    print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
                     continue
 
 
@@ -57,7 +55,7 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
 
         og_data["last_withdraw"] = d["hash"]
         now = time.time()
-        print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
+        print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
 
     if l == 0:
         print("0 record checked for withdraw.")

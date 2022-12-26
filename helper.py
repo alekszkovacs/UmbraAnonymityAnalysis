@@ -20,22 +20,25 @@ class FunctionName(Enum):
     W_TOKEN = "withdrawTokenOnBehalf(address _stealthAddr, address _acceptor, address _tokenAddr, address _sponsor, uint256 _sponsorFee, uint8 _v, bytes32 _r, bytes32 _s)"
 
 
-class Access(object):
-    _instance = None
-
-    def __new__(cls):
-        if not isinstance(cls._instance, cls):
-            cls._instance = super().__new__(cls)
-        return cls._instance
+class _Access(object):
    
     def __init__(self):
         super().__init__()
         self.start_time = time.time()
         load_dotenv()
 
-    def init_network(self, network: Network) -> None:
-        self.network = network
-        if network == Network.MAINNET:
+
+    @property
+    def network(self):
+        return self._network
+    
+    @network.setter
+    def network(self, network: Network):
+        self._network = network
+
+
+    def init_network(self) -> None:
+        if self._network == Network.MAINNET:
             self.API_ADDR = os.environ["MAINNET_API_ADDR"]
             self.API_KEY = os.environ["MAINNET_API_KEY"]
 
@@ -45,7 +48,7 @@ class Access(object):
             if m_websocket != "": self.WEB3_PROVIDER = m_websocket
 
             self.w3 = Web3(Web3.WebsocketProvider(self.WEB3_PROVIDER))
-        elif network == Network.POLYGON:
+        elif self._network == Network.POLYGON:
             self.API_ADDR = os.environ["POLYGON_API_ADDR"]
             self.API_KEY = os.environ["POLYGON_API_KEY"]
 
@@ -59,3 +62,5 @@ class Access(object):
             self.w3 = Web3(Web3.HTTPProvider(self.WEB3_PROVIDER))
 
         self.ns = ENS.fromWeb3(self.w3)
+
+access = _Access()

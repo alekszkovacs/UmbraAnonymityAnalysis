@@ -3,12 +3,11 @@ import json
 import time
 from datetime import timedelta
 
-from helper import Access, Contract
+from helper import access, Contract
 from helper import FunctionName as fn
 from get_ens_name import get_ens_name
 
 
-_access = Access()
 ens_database = "umbra/data/ens_database.json"
 
 def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Contract, download_all: bool) -> None:
@@ -71,7 +70,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, input_arg: Contract, downl
 
             og_data["last_ens"] = d["hash"]
             now = time.time()
-            print(f"{n}/{l} records checked against ENS, {found} new found, {local} gained from local db. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
+            print(f"{n}/{l} records checked against ENS, {found} new found, {local} gained from local db. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
 
         if l == 0:
             print("0 record checked against ENS.")

@@ -5,24 +5,13 @@ import importlib
 sys.path.append("./")
 sys.dont_write_bytecode = True # Prevent the creation of __pycache__ directories
 
-try:
-    match sys.argv[1]:
-        case "mainnet":
-            network = "mainnet"
-        case "polygon":
-            network = "polygon"
-        case default:
-            sys.exit("Incorrect 1. argument! (mainnet, polygon)")
-
-except IndexError as err:
-    sys.exit("Please give 1 argument! (mainnet, polygon)")
-
 from helper import FunctionName as fn
-from reports.heuristics import Heuristics
-Heuristics1 = importlib.import_module(f"reports.{network}.heuristics_1.heuristics_1").Heuristics1
-# from reports.heuristics_2.heuristics_2 import Heuristics2
-# from reports.heuristics_3.heuristics_3 import Heuristics3
-# from reports.heuristics_4.heuristics_4 import Heuristics4
+from helper import Network, access
+from reports.heuristics.heuristics import Heuristics
+from reports.heuristics.heuristics_1.heuristics_1 import Heuristics1
+from reports.heuristics.heuristics_2.heuristics_2 import Heuristics2
+from reports.heuristics.heuristics_3.heuristics_3 import Heuristics3
+from reports.heuristics.heuristics_4.heuristics_4 import Heuristics4
 
 
 class MyStatistics(object):
@@ -34,15 +23,13 @@ class MyStatistics(object):
             cls._instance = super().__new__(cls)
         return cls._instance
    
-    def __init__(self, network: str):
+    def __init__(self):
         super().__init__()
 
         self._deanonymized_stealths = {
-            "confident": set(),
-            "maybe": set()
+            "deanonymized": {},
+            "connected": {}
         }
-
-        Heuristics.network = network
 
         self._open_sources()
         self._prepare_heuristics()
@@ -53,32 +40,34 @@ class MyStatistics(object):
             # give in the already deanonymized stealths and receive the new ones
             stealths = h.main(self._deanonymized_stealths)
 
-            confident = stealths["confident"] if "confident" in stealths else {}
-            maybe = stealths["maybe"] if "maybe" in stealths else {}
-            print(f"\nThis heuristics deanonymized `{len(confident)}` stealth addresses with high and `{len(maybe)}` with low certainty.  ")
+            deanonymized = stealths["deanonymized"] if "deanonymized" in stealths else {}
+            connected = stealths["connected"] if "connected" in stealths else {}
+            print(f"\nThis heuristics deanonymized `{len(deanonymized)}`stealth addresses and connected`{len(connected)}` stealth addresses together.  ")
 
-            conf_size = len(self._deanonymized_stealths["confident"])
-            mayb_size = len(self._deanonymized_stealths["maybe"])
+            dean_size = len(self._deanonymized_stealths["deanonymized"])
+            conn_size = len(self._deanonymized_stealths["connected"])
 
-            if len(confident) > 0:
-                self._deanonymized_stealths["confident"] = {*self._deanonymized_stealths["confident"], *confident}   
-            if len(maybe) > 0:
-                self._deanonymized_stealths["maybe"] = {*self._deanonymized_stealths["maybe"], *maybe}
+            if len(deanonymized) > 0:
+                self._deanonymized_stealths["deanonymized"] = {**self._deanonymized_stealths["deanonymized"], **deanonymized}   
+            if len(connected) > 0:
+                self._deanonymized_stealths["connected"] = {**self._deanonymized_stealths["connected"], **connected}
 
-            conf_new_size = len(self._deanonymized_stealths["confident"]) - conf_size
-            mayb_new_size = len(self._deanonymized_stealths["maybe"]) - mayb_size
-            if conf_new_size < 0: conf_new_size = 0
-            if mayb_new_size < 0: mayb_new_size = 0
+            dean_new_size = len(self._deanonymized_stealths["deanonymized"]) - dean_size
+            conn_new_size = len(self._deanonymized_stealths["connected"]) - conn_size
+            if dean_new_size < 0: dean_new_size = 0
+            if conn_new_size < 0: conn_new_size = 0
 
-            print(f"With this, `{conf_new_size}` new stealth addresses with high and `{mayb_new_size}` with low certainty have been added to the deanonymization set.")
-            print(f"\n**TOTAL with high certainty: `{len(self._deanonymized_stealths['confident'])}/{len(self._all_stealths)}`**  ")
-            print(f"**TOTAL with low certainty: `{len(self._deanonymized_stealths['maybe'])}/{len(self._all_stealths)}`**")
+            print(f"With this, `{dean_new_size}` new stealth addresses have been added to the deanonymization set and `{conn_new_size}` new stealth addresses have been connected together.  ")
+            print(f"\n**TOTAL deanonymized stealths: `{len(self._deanonymized_stealths['deanonymized'])}/{len(self._all_stealths)}`**  ")
+            print(f"**TOTAL connected stealths: `{len(self._deanonymized_stealths['connected'])}/{len(self._all_stealths)}`**")
+
+        self._summarize_heuristics()
 
 
     def _open_sources(self) -> None:
-        with open("umbra/data/mainnet/umbra_contract_txs.json", "r") as file:
+        with open(Heuristics.data_path+"umbra_contract_txs.json", "r") as file:
             data = json.load(file)
-        with open("umbra/data/mainnet/stealth_key_registry_contract_txs.json", "r") as file:
+        with open(Heuristics.data_path+"stealth_key_registry_contract_txs.json", "r") as file:
             skr_data = json.load(file)
 
         self._contract_txs = data["result"]
@@ -103,27 +92,81 @@ class MyStatistics(object):
                
         self._all_stealths = set()
         for d in self._contract_txs:
+            # Search only for sendEth() and sendToken() bacause including withdrawToken() would be redundant.
             if d["functionName"] == fn.W_TOKEN.value:
                 continue
 
-            # sendEth() and sendToken() bacause withdrawToken() is redundant
             stealth = d[d["functionName"]]["_receiver"]
             self._all_stealths.add(stealth)
 
         self._heuristics = []
         self._heuristics.append(Heuristics1(copy.deepcopy(self._contract_txs), copy.deepcopy(self._skr_contract_txs)))
-        # self._heuristics.append(Heuristics2(copy.deepcopy(self._contract_txs), []))
-        # self._heuristics.append(Heuristics3(copy.deepcopy(self._contract_txs), []))
-        # self._heuristics.append(Heuristics4(copy.deepcopy(self._contract_txs), []))
+        self._heuristics.append(Heuristics2(copy.deepcopy(self._contract_txs), []))
+        self._heuristics.append(Heuristics3(copy.deepcopy(self._contract_txs), []))
+        self._heuristics.append(Heuristics4(copy.deepcopy(self._contract_txs), []))
+
+    def _summarize_heuristics(self) -> None:
+        print("\n## Summarize\n")
+
+        print("We will merge the deanonymized stealth addresses into the connections ", end="")
+        print("and then remove those connections where all of the connected stealth has the *receiver address* (the key)", end="")
+        print("as their *underlying address*.")
+        for receiver, stealths in self._deanonymized_stealths["connected"].copy().items():
+        
+            same = True
+            for stealth, value in stealths.items():
+                if stealth in self._deanonymized_stealths["deanonymized"].keys():
+                    """
+                        Merge the deanonymized stealth addresses into the connections.
+                    """
+                    stealths[stealth] = self._deanonymized_stealths["deanonymized"][stealth]
+
+                    if stealths[stealth]["underlying"] != receiver:
+                        same = False
+                else:
+                    same = False
+
+            if same:
+                """
+                    Remove those connections where all of the connected stealth has the receiver address (the key) as their
+                    underlying address.
+                """
+                del self._deanonymized_stealths["connected"][receiver]
 
 
-# with open("mainnet_output.md", "w") as file:
-#     #sys.stdout = file
+        print("\nAfter the revision, these are the final results:  ", end="")
+        print(f"\n**TOTAL deanonymized stealths: `{len(self._deanonymized_stealths['deanonymized'])}/{len(self._all_stealths)}`**  ")
+        print(f"**TOTAL connected stealths: `{len(self._deanonymized_stealths['connected'])}/{len(self._all_stealths)}`**  ")
+        total = len(self._all_stealths) - (len(self._deanonymized_stealths['deanonymized']) + len(self._deanonymized_stealths['connected']))
+        print(f"There are `{total}` stealth addresses which weren't included in neither heuristics, so the people behind them are the good users of Umbra.")
 
-#     print("# Umbra Deanonymization")
 
-#     stats = MyStatistics(network)
-#     stats.run_heuristics()
+        with open(access.network.value+"_results.json", "w") as file:
+            json.dump(self._deanonymized_stealths, file)
 
-stats = MyStatistics(network)
-stats.run_heuristics()
+        print(f"\nAll the results were printed out to **{access.network.value}_results.json** file.")
+
+
+try:
+    match sys.argv[1]:
+        case "mainnet":
+            network = Network.MAINNET
+        case "polygon":
+            network = Network.POLYGON
+        case default:
+            sys.exit("Incorrect 1. argument! (mainnet, polygon)")
+
+except IndexError as err:
+    sys.exit("Please give 1 argument! (mainnet, polygon)")
+
+access.network = network
+Heuristics.init_paths()
+
+
+with open(network.value+"_output.md", "w") as file:
+    sys.stdout = file
+
+    print(f"# Umbra Deanonymization on {network.value}")
+
+    stats = MyStatistics()
+    stats.run_heuristics()

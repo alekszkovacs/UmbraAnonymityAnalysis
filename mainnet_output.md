@@ -1,74 +1,87 @@
-# Umbra Deanonymization
+# Umbra Deanonymization on mainnet
 
 ## HEURISTICS 1
 
-There are `4209/7614` withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.
-This means we have assigned `4209` stealth addresses to `2700` different addresses, which from `1374` has ens address.
+reports/results/mainnet/
+There are `4580/8858` withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.
+This means we have assigned `4580` stealth addresses to `2880` different addresses. From these `1440` has ens address.
 
-This heuristics deanonymized `4209` stealth addresses with high and `0` with low certainty.  
-With this, `4209` new stealth addresses with high and `0` with low certainty have been added to the deanonymization set.
+This heuristics deanonymized `4580`stealth addresses and connected`0` stealth addresses together.  
+With this, `4580` new stealth addresses have been added to the deanonymization set and `0` new stealth addresses have been connected together.  
 
-**TOTAL with high certainty: `4209/7221`**  
-**TOTAL with low certainty: `0/7221`**
+**TOTAL deanonymized stealths: `4580/8169`**  
+**TOTAL connected stealths: `0/8169`**
 
 ## HEURISTICS 2
 
-There are `204/7614` addresses who have sent funds to themselves.
-This means we have assigned `204` stealth addresses to `182` different addresses,
+There are `240/8858` addresses who have sent funds to themselves.
+This means we have assigned `240` stealth addresses to `213` different addresses,
 which from `0` has ens address.
 
-This heuristics deanonymized `204` stealth addresses with high and `0` with low certainty.  
-With this, `15` new stealth addresses with high and `0` with low certainty have been added to the deanonymization set.
+This heuristics deanonymized `240`stealth addresses and connected`0` stealth addresses together.  
+With this, `17` new stealth addresses have been added to the deanonymization set and `0` new stealth addresses have been connected together.  
 
-**TOTAL with high certainty: `4224/7221`**  
-**TOTAL with low certainty: `0/7221`**
+**TOTAL deanonymized stealths: `4597/8169`**  
+**TOTAL connected stealths: `0/8169`**
 
 ## HEURISTICS 3
 
 |    |   # of addresses |   with this many txs |
 |---:|-----------------:|---------------------:|
-|  0 |             3623 |                    1 |
-|  1 |              827 |                    2 |
-|  2 |              204 |                    3 |
-|  3 |               75 |                    4 |
-|  4 |               46 |                    5 |
-|  5 |               15 |                    6 |
+|  0 |             4090 |                    1 |
+|  1 |             1009 |                    2 |
+|  2 |              240 |                    3 |
+|  3 |               84 |                    4 |
+|  4 |               47 |                    5 |
+|  5 |               26 |                    6 |
 |  6 |               11 |                    7 |
-|  7 |               10 |                    8 |
-|  8 |                4 |                   12 |
-|  9 |                4 |                   10 |
-| 10 |                3 |                    9 |
+|  7 |               11 |                    8 |
+|  8 |                5 |                    9 |
+|  9 |                5 |                   10 |
+| 10 |                4 |                   12 |
 | 11 |                3 |                   11 |
-| 12 |                1 |                   13 |
-| 13 |                1 |                   18 |
-| 14 |                1 |                   14 |
-| 15 |                1 |                   24 |
-| 16 |                1 |                   23 |
-| 17 |                1 |                   35 |
-| 18 |                1 |                   38 |
+| 12 |                2 |                   14 |
+| 13 |                2 |                   18 |
+| 14 |                1 |                   24 |
+| 15 |                1 |                   23 |
+| 16 |                1 |                   35 |
+| 17 |                1 |                   38 |
 
-Those, who have 1 *collection_count* in the result (an address is only used once for withdrawal) look like used the umbra correctly. There are `3623` addresses like this.
-From this we have already deanonymized `1832` stealth addresses, so there are only `1791` good users.
+Those, who have 1 *collection_count* in the result (an address is only used once for withdrawal) look like used the umbra correctly. There are `4090` addresses like this.
+From this we have already deanonymized `1902` stealth addresses, so there are only `2188` good users.
 So for the others we could say that they have been deanonymized, but it wouldn't be necessarily true since the receivers could be exchange or similar addresses. Because of that we should somehow eliminate these addresses. Sadly there's not really a way to precisely recognize them, so we will do the following:
 
 We will check if there are already deanonymized stealth addresses in the pattern where *collection_count* is *> 10*.
-There are `120` stealths like this out of `246` stealths.
+There are `121` stealths like this out of `265` stealths.
 This is too much so we can't determine those exchange or commerce company addresses based on the size of the pattern. We could either say that all the addresses except the ones with *collection_count* = 1 have been deanonymized or we could say that we will only count as deanonymized the addresses with *collection_count* *<= 5* (just a random number).
-Neither one is really good or precise, so we will introduce a new unit and say that these addresses are deanonymized but with a lower certainty.
-There are `3356` addresses who has a *collection_count* *> 1*, which from `964` haven't been already deanonymized. So these are the newly deanonymized with lower certainty.
+Neither one is really good or precise, so we simply just can't tell the underlying address behind a stealth address. Because of that we will connect these addresses together and state that these stealth addresses have common receivers, and with that we made the anonymity set of these stealth addresses a lot smaller since we found some kind of relation among them.
+There are `3990` receiver addresses who has a *collection_count* *> 1*, which from `2695` stealth addresses have been already deanonymized. However we will include these deanonymized ones to the connections since it carries more information.
 
-This heuristics deanonymized `0` stealth addresses with high and `964` with low certainty.  
-With this, `0` new stealth addresses with high and `964` with low certainty have been added to the deanonymization set.
+This heuristics deanonymized `0`stealth addresses and connected`5543` stealth addresses together.  
+With this, `0` new stealth addresses have been added to the deanonymization set and `5543` new stealth addresses have been connected together.  
 
-**TOTAL with high certainty: `4224/7221`**  
-**TOTAL with low certainty: `964/7221`**
+**TOTAL deanonymized stealths: `4597/8169`**  
+**TOTAL connected stealths: `5543/8169`**
 
 ## HEURISTICS 4
 
-Fees where there's both sender and withdrawal txs: [4000000000, 3000000000, 2000000000, 5000000000, 6000000000, 9000000000, 10000000000, 31000000000, 41000000000, 18000000000]
+Fees where there's both sender and withdrawal tx: [4000000000, 3000000000, 2000000000, 5000000000, 6000000000, 9000000000, 10000000000, 31000000000, 41000000000, 18000000000]
 
-This heuristics deanonymized `0` stealth addresses with high and `0` with low certainty.  
-With this, `0` new stealth addresses with high and `0` with low certainty have been added to the deanonymization set.
+Sadly all of the fees are some rounded values and we definitely can't say that they are unique, so this heuristics actually didn't find anything. Based on this it looks like Umbra users use the fees correctly.
 
-**TOTAL with high certainty: `4224/7221`**  
-**TOTAL with low certainty: `964/7221`**
+This heuristics deanonymized `0`stealth addresses and connected`0` stealth addresses together.  
+With this, `0` new stealth addresses have been added to the deanonymization set and `0` new stealth addresses have been connected together.  
+
+**TOTAL deanonymized stealths: `4597/8169`**  
+**TOTAL connected stealths: `5543/8169`**
+
+## Summarize
+
+We will merge the deanonymized stealth addresses into the connections and then remove those connections where all of the connected stealth has the *receiver address* (the key)as their *underlying address*.
+
+After the revision, these are the final results:  
+**TOTAL deanonymized stealths: `4597/8169`**  
+**TOTAL connected stealths: `2652/8169`**  
+There are `920` stealth addresses which weren't included in neither heuristics, so the people behind them are the good users of Umbra.
+
+All the results were printed out to **mainnet_results.json** file.

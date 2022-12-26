@@ -1,10 +1,7 @@
 import time
 from datetime import timedelta
 
-from helper import Access
-
-
-_access = Access()
+from helper import access
 
 
 def get_txs_fees(tx: dict | list) -> None:
@@ -13,7 +10,7 @@ def get_txs_fees(tx: dict | list) -> None:
     else: txs = tx
 
     for d in txs:
-        temp_tx = _access.w3.eth.get_transaction(d["hash"])
+        temp_tx = access.w3.eth.get_transaction(d["hash"])
 
         if "maxFeePerGas" in temp_tx:
             # it means it is a tx with type EIP-1559
@@ -43,7 +40,7 @@ def get_fees(og_data: dict, downloaded_data: list) -> None:
         og_data["last_fee"] = d["hash"]
 
         now = time.time()
-        print(f"{n}/{l} records checked for priority fees. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
+        print(f"{n}/{l} records checked for priority fees. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
 
     if l == 0:
         print("0 record checked against ENS.")

@@ -14,7 +14,7 @@ from requests import exceptions as re
 sys.path.append("./")
 sys.dont_write_bytecode = True # Prevent the creation of __pycache__ directories
 
-from helper import Access, Contract, Network
+from helper import access, Contract, Network
 from download_txs import download_txs
 from decode_txs_input import decode_txs_input
 from get_withdraw_txs import get_withdraw_txs
@@ -22,7 +22,6 @@ from get_txs_ens import get_txs_ens
 from get_fees import get_fees
 
 
-_access = Access()
 get_ens_a = False
 get_w_txs_a = False
 
@@ -35,17 +34,18 @@ try:
         case default:
             sys.exit("Incorrect 1. argument! (mainnet, polygon)")
 
-    _access.init_network(network)
+    access.network = network
+    access.init_network()
 
     match sys.argv[2]:
         case "umbra":
-            fname = f"umbra/data/{_access.network.value}/umbra_contract_txs.json"
-            fbackup = f"umbra/data/{_access.network.value}/umbra_contract_txs_BACKUP.json"
+            fname = f"umbra/data/{access.network.value}/umbra_contract_txs.json"
+            fbackup = f"umbra/data/{access.network.value}/umbra_contract_txs_BACKUP.json"
             contract_addr = "0xfb2dc580eed955b528407b4d36ffafe3da685401"
             contract = Contract.UMBRA
         case "registry":
-            fname = f"umbra/data/{_access.network.value}/stealth_key_registry_contract_txs.json"
-            fbackup = f"umbra/data/{_access.network.value}/stealth_key_registry_contract_txs_BACKUP.json"
+            fname = f"umbra/data/{access.network.value}/stealth_key_registry_contract_txs.json"
+            fbackup = f"umbra/data/{access.network.value}/stealth_key_registry_contract_txs_BACKUP.json"
             contract_addr = "0x31fe56609C65Cd0C510E7125f051D440424D38f3"
             contract = Contract.REGISTRY
         case default:

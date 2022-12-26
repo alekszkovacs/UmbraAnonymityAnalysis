@@ -1,12 +1,10 @@
-from helper import Access
+from helper import access
 
 import time
 from datetime import timedelta
 import json
 import requests
 from web3 import Web3
-
-_access = Access()
 
 def decode_txs_input(contract_addr: str, og_data: dict, downloaded_data: list) -> None:
 
@@ -24,9 +22,9 @@ def decode_txs_input(contract_addr: str, og_data: dict, downloaded_data: list) -
 
     contract_txs = [*contract_txs[n:], *downloaded_data]
 
-    contract_abi_endpoint = f"https://{_access.API_ADDR}/api?module=contract&action=getabi&address={contract_addr}&apikey={_access.API_KEY}"
+    contract_abi_endpoint = f"https://{access.API_ADDR}/api?module=contract&action=getabi&address={contract_addr}&apikey={access.API_KEY}"
     contract_abi = json.loads(requests.get(contract_abi_endpoint).text)
-    contract = _access.w3.eth.contract(address=Web3.toChecksumAddress(contract_addr), abi=contract_abi["result"])
+    contract = access.w3.eth.contract(address=Web3.toChecksumAddress(contract_addr), abi=contract_abi["result"])
 
     # contract_txs point to the undecoded txs
     n = 0
@@ -35,7 +33,7 @@ def decode_txs_input(contract_addr: str, og_data: dict, downloaded_data: list) -
         n += 1
         if d["functionName"] == "":
             now = time.time()
-            print(f"{n}/{l} record(s) decoded. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
+            print(f"{n}/{l} record(s) decoded. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
             continue
 
         func_obj, func_params = contract.decode_function_input(d["input"])
@@ -48,7 +46,7 @@ def decode_txs_input(contract_addr: str, og_data: dict, downloaded_data: list) -
         og_data["last_decoded"] = d["hash"]
 
         now = time.time()
-        print(f"{n}/{l} record(s) decoded. Elapsed time: {timedelta(seconds=now-_access.start_time)}\r", end="")
+        print(f"{n}/{l} record(s) decoded. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
 
     if l == 0:
         print("0 record decoded.")
