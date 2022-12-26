@@ -11,8 +11,8 @@ class Network(Enum):
     POLYGON = "polygon"
 
 class Contract(Enum):
-    UMBRA = 1
-    REGISTRY = 2
+    UMBRA = "umbra"
+    REGISTRY = "regisrty"
 
 class FunctionName(Enum):
     S_ETH = "sendEth(address _receiver, uint256 _tollCommitment, bytes32 _pkx, bytes32 _ciphertext)"

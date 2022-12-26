@@ -52,15 +52,28 @@ try:
             sys.exit("Incorrect 2. argument! (umbra, registry)")
 
     if len(sys.argv) == 4:
-        if sys.argv[3] == "ens-a":
-            get_ens_a = True
-        elif sys.argv[3] == "w_txs-a":
-            get_w_txs_a = True
-        elif sys.argv[3] == "all":
-            get_ens_a = True
-            get_w_txs_a = True
-        else:
-            sys.exit("Incorrect 3. argument! (ens-a, w_txs-a, all)")
+        match sys.argv[3]:
+            case "all-ens":
+                if access.network.value == Network.MAINNET:
+                    get_ens_a = True
+                else:
+                    sys.exit(f"Inappropriate 3. argument. You can't use ENS names on polygon network!")
+            case "all-w":
+                if contract == Contract.UMBRA:
+                    get_w_txs_a = True
+                else:
+                    sys.exit(f"Inappropriate 3. argument. No need to download withdraw txs for the stealth key registry!")
+            case "all":
+                if access.network.value == Network.MAINNET:
+                    get_ens_a = True
+                else:
+                    sys.exit(f"Inappropriate 3. argument. You can't use ENS names on polygon network!")
+                if contract == Contract.UMBRA:
+                    get_w_txs_a = True
+                else:
+                    sys.exit(f"Inappropriate 3. argument. No need to download withdraw txs for the stealth key registry!")
+            case default:
+                sys.exit("Incorrect 3. argument! (all-ens, all-w, all)")
 
 except IndexError as err:
     sys.exit("Please give 2 arguments! (1: mainnet, polygon; 2: umbra, registry)")
