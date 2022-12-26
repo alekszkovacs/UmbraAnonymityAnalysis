@@ -3,11 +3,8 @@
     When the receiver address of the eth/token has an address which has communicated with stealth registry.
 
     This heuristics says that we can determine the receiver address behind a stealth address.
-    In some cases we can even determine the ENS address, which brings us more closer to the real person holding the 
-    receiver address!
-
-    As a "sideheuristics" we could simply search for ENS addresses, but it would maybe give out false results since txs
-    like when someone spends his/her money paying someone with an ENS would be also included.
+    In some cases we can even determine the ENS address (on mainnet), which brings us more closer to the real person 
+    holding the receiver address!
 
     ### common_statistics --> ###
     #2
