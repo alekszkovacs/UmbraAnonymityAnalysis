@@ -20,7 +20,7 @@
         The results are documented in the referenced notebook, we act according to that.
     Based on the results we eliminated the unwanted txs.
 
-    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS WITH HIGH CERTAINTY.
+    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS.
 """
 import sys
 import json

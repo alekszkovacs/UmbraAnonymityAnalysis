@@ -52,7 +52,7 @@
     When we collect the sender side txs we can also collect the token ones since they also carry some information within
     themselves.
 
-    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS WITH HIGH CERTAINTY.
+    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS.
 
     FUTURE IMPROVEMENTS:
         TODO:   Get the txs of the receiver addresses with same priority fee and check if we can identify a collector

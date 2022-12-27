@@ -18,8 +18,7 @@
     #2 
         In this case we have to examine whether the whole amount was sent from the stealth to the receiver or not, since
         if not, then there's a higher chance that it was a tx where someone payed to someone else.
-        If yes, then we can be pretty sure about that the person behind the stealth addresses is the same like the common
-        receiver.
+        With this we can make the anonymity set smaller.
         
         Checking this is also good for eliminating the cases when there are more outgoing txs from a stealth address.
         In these cases we can't tell who is the real receiver and who holds the stealth address.
@@ -33,7 +32,7 @@
     with stealth addresses where the whole amount was withdrawn in one tx, it is likely that the owners of the stealth
     addresses outsource their funds the a common address where they can pile it up.
 
-    WITH THIS HEURISTICS WE CAN ASSIGN A REAL ADDRESS TO A STEALTH ADDRESS WITH LOW CERTAINTY.
+    WITH THIS HEURISTICS WE CAN CONNECT STEALTH ADDRESSES TOGETHER.
 """
 import sys
 import json
