@@ -42,7 +42,7 @@ class MyStatistics(object):
 
             deanonymized = stealths["deanonymized"] if "deanonymized" in stealths else {}
             connected = stealths["connected"] if "connected" in stealths else {}
-            print(f"\nThis heuristics deanonymized `{len(deanonymized)}`stealth addresses and connected`{len(connected)}` stealth addresses together.  ")
+            print(f"\nThis heuristics deanonymized `{len(deanonymized)}` stealth addresses and connected `{len(connected)}` stealth addresses together.  ")
 
             dean_size = len(self._deanonymized_stealths["deanonymized"])
             conn_size = len(self._deanonymized_stealths["connected"])
@@ -109,8 +109,8 @@ class MyStatistics(object):
         print("\n## Summarize\n")
 
         print("We will merge the deanonymized stealth addresses into the connections ", end="")
-        print("and then remove those connections where all of the connected stealth has the *receiver address* (the key)", end="")
-        print("as their *underlying address*.")
+        print("and then remove those connections where all of the connected stealth has the *receiver address* (the key) ", end="")
+        print("as their *underlying address* (so if all of the included stealths are deanonymized as the receiver).")
         for receiver, stealths in self._deanonymized_stealths["connected"].copy().items():
         
             same = True

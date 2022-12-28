@@ -87,7 +87,6 @@ class Heuristics1Base(Heuristics):
                     else:
                         result_list.append(a_append)
 
-        print(Heuristics.result_path)
         with open(Heuristics.result_path+"receivers_in_skr.json", "w") as file:
             json.dump(result_list, file)
 

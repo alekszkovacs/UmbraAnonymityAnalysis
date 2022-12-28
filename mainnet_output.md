@@ -2,11 +2,10 @@
 
 ## HEURISTICS 1
 
-reports/results/mainnet/
 There are `4580/8858` withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.
 This means we have assigned `4580` stealth addresses to `2880` different addresses. From these `1440` has ens address.
 
-This heuristics deanonymized `4580`stealth addresses and connected`0` stealth addresses together.  
+This heuristics deanonymized `4580` stealth addresses and connected `0` stealth addresses together.  
 With this, `4580` new stealth addresses have been added to the deanonymization set and `0` new stealth addresses have been connected together.  
 
 **TOTAL deanonymized stealths: `4580/8169`**  
@@ -18,7 +17,7 @@ There are `240/8858` addresses who have sent funds to themselves.
 This means we have assigned `240` stealth addresses to `213` different addresses,
 which from `0` has ens address.
 
-This heuristics deanonymized `240`stealth addresses and connected`0` stealth addresses together.  
+This heuristics deanonymized `240` stealth addresses and connected `0` stealth addresses together.  
 With this, `17` new stealth addresses have been added to the deanonymization set and `0` new stealth addresses have been connected together.  
 
 **TOTAL deanonymized stealths: `4597/8169`**  
@@ -57,7 +56,7 @@ This is too much so we can't determine those exchange or commerce company addres
 Neither one is really good or precise, so we simply just can't tell the underlying address behind a stealth address. Because of that we will connect these addresses together and state that these stealth addresses have common receivers, and with that we made the anonymity set of these stealth addresses a lot smaller since we found some kind of relation among them.
 There are `3990` receiver addresses who has a *collection_count* *> 1*, which from `2695` stealth addresses have been already deanonymized. However we will include these deanonymized ones to the connections since it carries more information.
 
-This heuristics deanonymized `0`stealth addresses and connected`5543` stealth addresses together.  
+This heuristics deanonymized `0` stealth addresses and connected `5543` stealth addresses together.  
 With this, `0` new stealth addresses have been added to the deanonymization set and `5543` new stealth addresses have been connected together.  
 
 **TOTAL deanonymized stealths: `4597/8169`**  
@@ -69,7 +68,7 @@ Fees where there's both sender and withdrawal tx: [4000000000, 3000000000, 20000
 
 Sadly all of the fees are some rounded values and we definitely can't say that they are unique, so this heuristics actually didn't find anything. Based on this it looks like Umbra users use the fees correctly.
 
-This heuristics deanonymized `0`stealth addresses and connected`0` stealth addresses together.  
+This heuristics deanonymized `0` stealth addresses and connected `0` stealth addresses together.  
 With this, `0` new stealth addresses have been added to the deanonymization set and `0` new stealth addresses have been connected together.  
 
 **TOTAL deanonymized stealths: `4597/8169`**  
@@ -77,7 +76,7 @@ With this, `0` new stealth addresses have been added to the deanonymization set 
 
 ## Summarize
 
-We will merge the deanonymized stealth addresses into the connections and then remove those connections where all of the connected stealth has the *receiver address* (the key)as their *underlying address*.
+We will merge the deanonymized stealth addresses into the connections and then remove those connections where all of the connected stealth has the *receiver address* (the key) as their *underlying address* (so if all of the included stealths are deanonymized as the receiver).
 
 After the revision, these are the final results:  
 **TOTAL deanonymized stealths: `4597/8169`**  
