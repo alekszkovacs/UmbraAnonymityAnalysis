@@ -91,9 +91,6 @@ class Heuristics3Base(Heuristics):
                         "withdrawn_time": datetime.fromtimestamp(int(d["timeStamp"])).strftime("%Y.%m.%d, %H:%M:%S"),
                     })
                 result_dict[receiver]["collection_count"] += 1
-
-
-        with open(Heuristics.result_path+"collector_pattern.json", "w") as file:
-            json.dump(result_dict, file)
+                
 
         return result_dict

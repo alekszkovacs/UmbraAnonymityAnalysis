@@ -9,6 +9,8 @@ from datetime import timedelta
 class Network(Enum):
     MAINNET = "mainnet"
     POLYGON = "polygon"
+    ARBITRUM = "arbitrum"
+    OPTIMISM = "optimism"
 
 class Contract(Enum):
     UMBRA = "umbra"
@@ -44,30 +46,41 @@ class _Access(object):
     def contract(self, contract: contract):
         self._contract = contract
 
+    @property
+    def th(self):
+        return self._th
+    
+    @th.setter
+    def th(self, th: th):
+        self._th = th
+
+    def config(self, network_name: str) -> None:
+        self.API_ADDR = os.environ[f"{network_name}_API_ADDR"]
+        self.API_KEY = os.environ[f"{network_name}_API_KEY"]
+
+        m_http = os.environ[f"{network_name}_WEB3_HTTP_PROVIDER"].strip()
+        m_websocket = os.environ[f"{network_name}_WEB3_WEBSOCKET_PROVIDER"].strip()
+        if m_websocket != "":
+            self.WEB3_PROVIDER = m_websocket
+            self.w3 = Web3(Web3.WebsocketProvider(self.WEB3_PROVIDER))
+        elif m_http != "":
+            self.WEB3_PROVIDER = m_http
+            self.w3 = Web3(Web3.HTTPProvider(self.WEB3_PROVIDER))
+        else:
+            raise NotImplementedError("Provider not initialized!")
 
     def init_network(self) -> None:
         if self._network == Network.MAINNET:
-            self.API_ADDR = os.environ["MAINNET_API_ADDR"]
-            self.API_KEY = os.environ["MAINNET_API_KEY"]
+            self.config("MAINNET")
 
-            m_http = os.environ["MAINNET_WEB3_HTTP_PROVIDER"].strip()
-            m_websocket = os.environ["MAINNET_WEB3_WEBSOCKET_PROVIDER"].strip()
-            if m_http != "": self.WEB3_PROVIDER = m_http
-            if m_websocket != "": self.WEB3_PROVIDER = m_websocket
-
-            self.w3 = Web3(Web3.WebsocketProvider(self.WEB3_PROVIDER))
         elif self._network == Network.POLYGON:
-            self.API_ADDR = os.environ["POLYGON_API_ADDR"]
-            self.API_KEY = os.environ["POLYGON_API_KEY"]
+            self.config("POLYGON")             
 
-            # Since the found (at least that I've found) websocket provider had poor performance, and infura (which has
-            # good performance) only has http for polygon, I will use http...
-            m_http = os.environ["POLYGON_WEB3_HTTP_PROVIDER"].strip()
-            m_websocket = os.environ["POLYGON_WEB3_WEBSOCKET_PROVIDER"].strip()
-            if m_http != "": self.WEB3_PROVIDER = m_http
-            if m_websocket != "": self.WEB3_PROVIDER = m_websocket
-            
-            self.w3 = Web3(Web3.HTTPProvider(self.WEB3_PROVIDER))
+        elif self._network == Network.ARBITRUM:
+            self.config("ARBITRUM")
+
+        elif self._network == Network.OPTIMISM:
+            self.config("OPTIMISM")
 
         else:
             raise ValueError("Network not yet initialized!")

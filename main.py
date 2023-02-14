@@ -1,5 +1,9 @@
 import sys
+import warnings
+import json
+
 sys.dont_write_bytecode = True # Prevent the creation of __pycache__ directories
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from src.helper import access, Contract, Network
 from src.umbra import umbra
@@ -8,7 +12,6 @@ from src.statistics import statistics
 
 _get_ens_a = False
 _get_w_txs_a = False
-
 
 try:
     print("\nChoose whether you want to download transactions or want to run the heuristics! (t, h)")
@@ -55,21 +58,21 @@ try:
 
             match temp:
                 case "all-ens":
-                    if access.network.value == Network.MAINNET:
+                    if access.network == Network.MAINNET:
                         _get_ens_a = True
                     else:
                         sys.exit(f"Inappropriate 3. argument. You can't use ENS names on polygon network!")
                 case "all-w":
-                    if contract == Contract.UMBRA:
+                    if access.contract == Contract.UMBRA:
                         _get_w_txs_a = True
                     else:
                         sys.exit(f"Inappropriate 3. argument. No need to download withdraw txs for the stealth key registry!")
                 case "all":
-                    if access.network.value == Network.MAINNET:
+                    if access.network == Network.MAINNET:
                         _get_ens_a = True
                     else:
                         sys.exit(f"Inappropriate 3. argument. You can't use ENS names on polygon network!")
-                    if contract == Contract.UMBRA:
+                    if access.contract == Contract.UMBRA:
                         _get_w_txs_a = True
                     else:
                         sys.exit(f"Inappropriate 3. argument. No need to download withdraw txs for the stealth key registry!")

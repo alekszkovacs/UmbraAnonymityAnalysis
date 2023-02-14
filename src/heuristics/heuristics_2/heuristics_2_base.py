@@ -70,8 +70,6 @@ class Heuristics2Base(Heuristics):
                         result_list.append({**a_append, **{"ens": d["sender_ens"]}})
                     else:
                         result_list.append(a_append)
-
-        with open(Heuristics.result_path+"same_sender_receiver.json", "w") as file:
-            json.dump(result_list, file)
+                        
 
         return result_list

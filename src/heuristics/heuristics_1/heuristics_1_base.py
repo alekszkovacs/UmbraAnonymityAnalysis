@@ -85,8 +85,6 @@ class Heuristics1Base(Heuristics):
                         result_list.append({**a_append, **{"ens": d[d["functionName"]]["receiver_ens"]}})
                     else:
                         result_list.append(a_append)
-
-        with open(Heuristics.result_path+"receivers_in_skr.json", "w") as file:
-            json.dump(result_list, file)
+                        
 
         return result_list

@@ -129,7 +129,4 @@ class Heuristics4Base(Heuristics):
                 result_dict[d["maxPriorityFeePerGas"]].append(temp_append)
 
 
-        with open(Heuristics.result_path+"addresses_by_fees.json", "w") as file:
-            json.dump(result_dict, file)
-
         return result_dict

@@ -1,8 +1,9 @@
 import sys
 from collections import Counter
+import json
 
 from src.helper import access, Network
-from ..heuristics import run_single_heuristics
+from ..heuristics import run_single_heuristics, Heuristics
 from .heuristics_4_base import Heuristics4Base
 
 
@@ -12,18 +13,22 @@ class Heuristics4(Heuristics4Base):
         super().__init__(contract_txs, skr_contract_txs)
 
     def _get_statistics(self, results: dict) -> set:
+
+        with open(Heuristics.result_path+"addresses_by_fees.json", "w") as file:
+            json.dump(results, file)
+
         fees = []
         for fee, addresses in results.items():
             sender = False
             withdrawal = False
             for ad in addresses:
-                if sender and withdrawal:
-                    fees.append(fee)
-                    break
                 if ad["type"] == "send":
                     sender = True
                 if ad["type"] == "withdraw":
                     withdrawal = True
+                if sender and withdrawal:
+                    fees.append(fee)
+                    break
 
         print(f"Fees where there's both sender and withdrawal tx: {fees}")
 
@@ -34,6 +39,9 @@ class Heuristics4(Heuristics4Base):
             
             case Network.POLYGON:
                 print("\nNo fee was found where there's both sender and withdrawal tx, ", end="") 
+
+            case _:
+                print(fees)
 
         print("so this heuristics actually didn't find anything. Based on this it looks like Umbra users use the fees correctly.")
 

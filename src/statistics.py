@@ -23,11 +23,11 @@ class _Statistics(object):
             "connected": {}
         }
 
+
+    def run_heuristics(self) -> None:
         self._open_sources()
         self._prepare_heuristics()
 
-
-    def run_heuristics(self) -> None:
         for h in self._heuristics:                  
             # give in the already deanonymized stealths and receive the new ones
             stealths = h.main(self._deanonymized_stealths)

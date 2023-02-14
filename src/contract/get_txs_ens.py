@@ -68,7 +68,7 @@ def get_txs_ens(og_data: dict, downloaded_data: list, contract: Contract, downlo
                 except exceptions.InvalidName as err:
                     print(f"Error occured at the {n}th item: {err}\nContinuing the process...")
 
-            og_data["last_ens"] = d["hash"]
+            if not download_all: og_data["last_ens"] = d["hash"]
             now = time.time()
             print(f"{n}/{l} records checked against ENS, {found} new found, {local} gained from local db. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
 

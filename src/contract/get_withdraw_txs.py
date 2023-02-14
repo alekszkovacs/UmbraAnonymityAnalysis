@@ -2,6 +2,7 @@ import time
 from datetime import timedelta
 import requests
 import json
+from web3 import Web3
 
 from src.helper import access
 from src.helper import FunctionName as fn
@@ -40,8 +41,7 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
 
         if download_all:
             if address in d[d["functionName"]]:
-                if len(d[d["functionName"]][address]) == w3.eth.get_transaction_count(Web3.toChecksumAddress(address)):
-                    og_data["last_withdraw"] = d["hash"]
+                if len(d[d["functionName"]][address]) == access.w3.eth.get_transaction_count(Web3.toChecksumAddress(address)):
                     now = time.time()
                     print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
                     continue
@@ -53,7 +53,7 @@ def get_withdraw_txs(og_data: dict, downloaded_data: list, download_all: bool) -
         d[d["functionName"]][address] = data
         found += len(data)
 
-        og_data["last_withdraw"] = d["hash"]
+        if not download_all: og_data["last_withdraw"] = d["hash"]
         now = time.time()
         print(f"{n}/{l} records checked for withdraw, {found} new found. Elapsed time: {timedelta(seconds=now-access.start_time)}\r", end="")
 

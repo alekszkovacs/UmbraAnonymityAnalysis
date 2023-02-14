@@ -1,8 +1,9 @@
 import sys
 from collections import Counter
+import json
 
 from src.helper import access, Network
-from ..heuristics import run_single_heuristics
+from ..heuristics import run_single_heuristics, Heuristics
 from .heuristics_2_base import Heuristics2Base
 
 
@@ -21,6 +22,9 @@ class Heuristics2(Heuristics2Base):
                 "ens":      ens of the user
             }
         """
+
+        with open(Heuristics.result_path+"same_sender_receiver.json", "w") as file:
+            json.dump(results, file)
         
         same = list(map(lambda v: v["address"], results))
         print(f"There are `{len(same)}/{len(self._contract_txs)}` addresses who have sent funds to themselves.")

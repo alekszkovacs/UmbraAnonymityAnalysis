@@ -5,7 +5,7 @@ try:
     from wakepy import set_keepawake, unset_keepawake
     use_wakepy = True
 except NotImplementedError as err:
-    traceback.print_exc()
+    #traceback.print_exc()
     print("\nYour system does not support using wakepy package. Because of that the program cannot prevent your system from sleeping or getting hibernated, so you have to make extra effort to keep your PC awake during long downloading processes. Please read the error and try to make wakepy work or be careful if you want to start a long downloading process while you are away from your PC.\nContinue running...\n")
     use_wakepy = False
 import os
@@ -31,8 +31,8 @@ def umbra(fname: str, fbackup: str, get_ens_a: bool, get_w_txs_a: bool):
                 # lb = int(og_data["last_block"])-10 #earlier blocks are definitely unmutable
                 lb = int(og_data["last_block"]) + 1
 
-            with open(fbackup, "w") as file:
-                json.dump(og_data, file)
+                with open(fbackup, "w") as file:
+                    json.dump(og_data, file)
                 
         except FileNotFoundError as err:
             og_data = {"result": []}
@@ -47,7 +47,7 @@ def umbra(fname: str, fbackup: str, get_ens_a: bool, get_w_txs_a: bool):
         if lb == 0:
             # When we download all the transactions from block 0, we have to delete 1 in case of mainnet
             # and we have to delete 2 in case of polygon from the head of the list.
-            _delete = 1 if network == Network.MAINNET else 2
+            _delete = 1 if access.network == Network.MAINNET else 2
             downloaded_data = downloaded_data[_delete:]
 
         # If the API endpoint timeouts...
@@ -69,7 +69,7 @@ def umbra(fname: str, fbackup: str, get_ens_a: bool, get_w_txs_a: bool):
 
                 break
 
-            except (ae.TimeoutError, re.ConnectTimeout, re.ConnectionError) as err:
+            except (ae.TimeoutError, re.ConnectTimeout, re.ConnectionError, Exception) as err:
                 print(f"\nRestarting because of {err}\n")
 
             finally:

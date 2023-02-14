@@ -1,3 +1,5 @@
 .env
 **/__pycache__/
-*BACKUP.json
+skr_contract_txs.json
+umbra_contract_txs.json
+umbra_contract_txs_BACKUP.json

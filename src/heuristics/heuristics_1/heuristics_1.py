@@ -1,8 +1,9 @@
 import sys
 from collections import Counter
+import json
 
 from src.helper import access, Network
-from ..heuristics import run_single_heuristics
+from ..heuristics import run_single_heuristics, Heuristics
 from .heuristics_1_base import Heuristics1Base
 
 
@@ -22,6 +23,9 @@ class Heuristics1(Heuristics1Base):
                 "ens":              ens of the user
             }
         """
+
+        with open(Heuristics.result_path+"receivers_in_skr.json", "w") as file:
+            json.dump(results, file)
 
         receivers = list(map(lambda v: v["receiver_address"], results))
         print(f"There are `{len(receivers)}/{len(self._contract_txs)}` withdraw transactions (eth+token) where the receiver address has registrated public keys into the stealth key registry.")

@@ -1,7 +1,8 @@
 import sys
 import pandas as pd
+import json
 
-from ..heuristics import run_single_heuristics
+from ..heuristics import run_single_heuristics, Heuristics
 from .heuristics_3_base import Heuristics3Base
 
 class Heuristics3(Heuristics3Base):
@@ -30,7 +31,8 @@ class Heuristics3(Heuristics3Base):
                 ]
             }
         """
-
+        with open(Heuristics.result_path+"collector_pattern.json", "w") as file:
+            json.dump(results, file)
 
         amounts = list(map(lambda d: d["collection_count"], results.values()))
         amounts = pd.Series(amounts)

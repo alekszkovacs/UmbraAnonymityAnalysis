@@ -9,8 +9,6 @@ This repository is dedicated to analyse user behaviour in the Umbra stealth addr
 ```bash
 sudo apt-get update
 sudo apt-get install git-all
-sudo apt-get install git-lfs
-git lfs install
 # install python >= 3.10 version
 sudo apt-get install python3
 sudo apt-get install python3-venv python3-pip
@@ -21,4 +19,9 @@ pip install -r requirements.txt
 cp sample.env .env
 ```
 
-Now open the `.env` file and give the necessary data respectively.
+Now open the `sample.env` file, copy it to `.env` and give the necessary data respectively.
+
+## Download transaction data
+
+If you don't want to download all the transactions for all the networks (which would take more than 12 hours), feel free
+to contact me at [kovcsaleex0104@gmail.com](kovcsaleex0104@gmail.com) and I will send you all the files.
