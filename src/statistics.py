@@ -69,26 +69,36 @@ class _Statistics(object):
 
         ### common_statistics --> ###
         #2
-        for d in self._contract_txs.copy():
-                if d["functionName"] == fn.S_ETH.value:
-                    stealth = d[d["functionName"]]["_receiver"]
-                    sent_eth = int(d["value"])
+        # for d in self._contract_txs.copy():
+        #     if d["functionName"] == fn.S_ETH.value:
+        #         stealth = d[d["functionName"]]["_receiver"]
+        #         sent_eth = int(d["value"])
 
-                    for tx in d[d["functionName"]][stealth]:
-                        # If there are more tx, then withdrawn_eth will not be equal to sent eth
-                        withdrawn_eth = int(tx["value"]) + (int(tx["gasUsed"]) * int(tx["gasPrice"]))
+        #         for tx in d[d["functionName"]][stealth]:
+        #             # If there are more tx, then withdrawn_eth will not be equal to sent eth
+        #             withdrawn_eth = int(tx["value"]) + (int(tx["gasUsed"]) * int(tx["gasPrice"]))
 
-                    if sent_eth != withdrawn_eth:
-                        self._contract_txs.remove(d)
+        #         if sent_eth != withdrawn_eth:
+        #             self._contract_txs.remove(d)
         ### common_statistics ###
+
+        for d in self._contract_txs.copy():
+            func = d["functionName"]
+            if d.get(func):
+                if func == fn.S_ETH.value:
+                    stealth = d[func]["_receiver"]
+                    if len(d[func][stealth]) > 1:
+                        self._contract_txs.remove(d)
+            else:
+                self._contract_txs.remove(d)
                
         self._all_stealths = set()
         for d in self._contract_txs:
             # Search only for sendEth() and sendToken() bacause including withdrawToken() would be redundant.
-            if d["functionName"] == fn.W_TOKEN.value:
+            if (func := d["functionName"]) == fn.W_TOKEN.value:
                 continue
 
-            stealth = d[d["functionName"]]["_receiver"]
+            stealth = d[func]["_receiver"]
             self._all_stealths.add(stealth)
 
         self._heuristics = []
