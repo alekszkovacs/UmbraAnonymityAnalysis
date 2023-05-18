@@ -24,4 +24,4 @@ Now open the `sample.env` file, copy it to `.env` and give the necessary data re
 ## Download transaction data
 
 If you don't want to download all the transactions for all the networks (which would take more than 12 hours), feel free
-to contact me at [kovcsaleex0104@gmail.com](kovcsaleex0104@gmail.com) and I will send you all the files.
+to [download them from here](https://ikelte-my.sharepoint.com/:f:/g/personal/mufsgl_inf_elte_hu/Ep-qXCiAWFJFi-HQT4pnXrwBpFpH9BG1EcKWplQ1yI4BqA?e=2OS68d).
