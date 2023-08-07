@@ -1,6 +1,7 @@
 # Umbra Anonymity Analysis
 
-This repository is dedicated to analyse user behaviour in the Umbra stealth address scheme.
+This repository is dedicated to analyse user behaviour in the Umbra stealth address scheme.\
+You can access our paper with [István András Seres](https://istvanseres.web.elte.hu/) about the results [here](https://arxiv.org/pdf/2308.01703.pdf).
 
 ## Download and install dependencies
 
